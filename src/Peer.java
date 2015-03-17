@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 
@@ -12,19 +13,30 @@ public class Peer {
 		/*if(args.length == 6){
 			setUpSockets(args);
 		}*/
+		setUpSocketsDefault();
 		while(true){
 			BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
 			String command = inFromUser.readLine();
 			String parts[] = command.split(" ");
-			System.out.println("DB");
 			if(parts.length == 2 && parts[0].equals("BACKUP")){
 				String filename = parts[1];
 				MyFile test = new MyFile(filename);
 				FileBackup fb = new FileBackup(test, 1);
 				fb.Send();
+			} else if(command.equals("PEER")){
+				break;
 			} else{
 				System.out.println("INVALID INPUT");
+				System.exit(-1);
 			}
+		}
+		System.out.println("ACTING AS PEER - JOINING GROUP...");
+		mdb_socket.joinGroup(mdb_saddr.getAddress());
+		while(true){
+			byte[] receiveData = new byte[1024];
+			DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+			mdb_socket.receive(receivePacket);
+			System.out.println("RECEIVED: ");
 		}
 	}
 	
@@ -36,7 +48,7 @@ public class Peer {
 		long writtenSize = FileSystem.writeByteArray(path, msg.getBody());
 	}
 	
-	void setUpSockets(String args[]) throws IOException{
+	static void setUpSockets(String args[]) throws IOException{
 		/*MULTICAST CONTROL SETUP*/
 		mc_saddr = new InetSocketAddress(args[0], Integer.parseInt(args[1]));
 		mc_port = mc_saddr.getPort();
@@ -52,6 +64,19 @@ public class Peer {
 		mdr_port = mdr_saddr.getPort();
 		mdr_socket = new MulticastSocket(mdr_saddr.getPort());
 		mdr_socket.setTimeToLive(1);	
+	}
+	
+	static void setUpSocketsDefault() throws IOException{
+		/*MULTICAST CONTROL SETUP*/
+		mc_saddr = new InetSocketAddress("239.0.0.4", 4444);
+		mc_port = mc_saddr.getPort();
+		mc_socket = new MulticastSocket(mc_saddr.getPort());
+		mc_socket.setTimeToLive(1);
+		/*MULTICAST DATA BACKUP CONTROL*/
+		mdb_saddr = new InetSocketAddress("239.0.0.3", 3333);
+		mdb_port = mdb_saddr.getPort();
+		mdb_socket = new MulticastSocket(mdb_saddr.getPort());
+		mdb_socket.setTimeToLive(1);
 	}
 	
 	/*MULTICAST CONTROL SOCKET*/

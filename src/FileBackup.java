@@ -8,7 +8,6 @@ public class FileBackup {
 	MyFile file;
 	
 	public FileBackup(final MyFile file, int replicationDegree){
-		System.out.println("DB2");
 		if(replicationDegree < 1 || replicationDegree > 9)
 			throw new IllegalArgumentException("Replication Degree must be between 1 and 9");
 		

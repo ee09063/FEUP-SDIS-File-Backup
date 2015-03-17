@@ -13,14 +13,15 @@ public class ChunkBackup {
 	public ChunkBackup(Chunk chunk) throws IOException{
 		msg = Message.makePutChunk(chunk);
 		
+		
 		msgPacket = new DatagramPacket(msg.toByteArray(),
 										  msg.toByteArray().length,
-										  Peer.mc_saddr.getAddress(),
-										  Peer.mc_saddr.getPort());
-		Peer.mc_socket.send(msgPacket);
-		
-		TaskManager task = new TaskManager();
-		task.startTask(msg, chunk);
+										  Peer.mdb_saddr.getAddress(),
+										  Peer.mdb_saddr.getPort());
+		Peer.mdb_socket.send(msgPacket);
+		System.out.println("SENT MESSAGE");
+		/*TaskManager task = new TaskManager();
+		task.startTask(msg, chunk);*/
 	}
 	
 	public class TaskManager {
