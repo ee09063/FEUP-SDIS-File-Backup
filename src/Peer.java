@@ -13,20 +13,27 @@ public class Peer {
 			setUpSockets(args);
 		}*/
 		while(true){
-			/*BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
+			BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
 			String command = inFromUser.readLine();
 			String parts[] = command.split(" ");
 			System.out.println("DB");
 			if(parts.length == 2 && parts[0].equals("BACKUP")){
 				String filename = parts[1];
 				MyFile test = new MyFile(filename);
-				System.out.println("DB1");
 				FileBackup fb = new FileBackup(test, 1);
 				fb.Send();
 			} else{
 				System.out.println("INVALID INPUT");
-			}*/
+			}
 		}
+	}
+	
+	public void writeChunk(Message msg){
+		String path = null;
+		if(msg.type == Message.Type.PUTCHUNK){
+			path = backupPath + File.separator + msg.getHexFileID() + File.separator + msg.chunkNo.toString();
+		}
+		long writtenSize = FileSystem.writeByteArray(path, msg.getBody());
 	}
 	
 	void setUpSockets(String args[]) throws IOException{
@@ -62,5 +69,7 @@ public class Peer {
 	public static int mdr_port;
 	public static String mdr_addr;
 	public static InetSocketAddress mdr_saddr;
+	
+	private final String backupPath = "backup";
 	
 }

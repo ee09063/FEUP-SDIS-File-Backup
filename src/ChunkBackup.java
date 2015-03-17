@@ -1,55 +1,55 @@
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class ChunkBackup {
 	private int count = 0;
-	private int time = 500;
+	private int timeInterval = 500;
 	final Message msg;
-	//final DatagramPacket msgPacket;
+	final DatagramPacket msgPacket;
 	
 	public ChunkBackup(Chunk chunk) throws IOException{
 		msg = Message.makePutChunk(chunk);
 		
-		//System.out.println(this.msg.type + " " + new String(this.msg.getBody()));
-		System.out.println(new String(this.msg.toByteArray()));
-		
-		
-		/*SINCRO?*/
-		/*msgPacket = new DatagramPacket(msg.toByteArray(),
+		msgPacket = new DatagramPacket(msg.toByteArray(),
 										  msg.toByteArray().length,
 										  Peer.mc_saddr.getAddress(),
 										  Peer.mc_saddr.getPort());
-		Peer.mc_socket.send(msgPacket);*/
+		Peer.mc_socket.send(msgPacket);
 		
-		/*SCHEDULE TO VERIFY THE STORED MESSAGES*/
-		
-		
+		TaskManager task = new TaskManager();
+		task.startTask(msg, chunk);
 	}
 	
-	/*public void checkStoredMsg(Chunk chunk){
-		ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
-		exec.schedule(new Runnable(){
-			public void run(){
-				int numStoredMsg = 0; //HOW TO GET THEM?
-				count++;
-				if(numStoredMsg < chunk.replicationDeg){
-					if(count == 5)
-						System.out.println("ERROR: Replication degree not reached");
-					else {
-						time = time * 2;
-						try {
-							Peer.mc_socket.send(msgPacket);
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}
-		}, time, TimeUnit.MILLISECONDS);
+	public class TaskManager {
+	    private Timer timer = new Timer();
+	    Message msg;
+	    Chunk chunk;
+	    
+	    public void startTask(Message msg, Chunk chunk) {
+	    	this.msg = msg;
+	    	this.chunk = chunk;
+	        timer.schedule(new PeriodicTask(), timeInterval);
+	    }
+
+	    private class PeriodicTask extends TimerTask {
+	        @Override
+	        public void run(){
+	        	count++;
+	        	if(count == 5){
+	        		/**/
+	        	}else{
+	        		int numStored = 0; //GET THE STORED MESSAGES HERE
+	        		if(numStored >= chunk.replicationDeg){
+	        			
+	        		}else{
+	        			timeInterval*=2;
+	        			timer.schedule(new PeriodicTask(), timeInterval);
+	        		}
+	        	}
+	        }
+	    }
 	}
-	*/
 }

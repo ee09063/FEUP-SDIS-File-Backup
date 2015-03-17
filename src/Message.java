@@ -50,6 +50,10 @@ public class Message {
 	
 	private byte[] body = null;
 	
+	public FileID getFileID(){
+		return this.fileID;
+	}
+	
 	protected void setChunkNo(int c){
 		this.chunkNo = c;
 	}
@@ -183,33 +187,5 @@ public class Message {
 		
 		return msg;
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 }
