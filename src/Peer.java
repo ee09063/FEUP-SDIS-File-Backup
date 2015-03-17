@@ -33,11 +33,13 @@ public class Peer {
 		System.out.println("ACTING AS PEER - JOINING GROUP...");
 		mdb_socket.joinGroup(mdb_saddr.getAddress());
 		while(true){
-			byte[] receiveData = new byte[1024];
+			byte[] receiveData = new byte[Chunk.CHUNK_MAX_SIZE];
 			DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 			mdb_socket.receive(receivePacket);
-			System.out.println("RECEIVED: ");
-			//Message receivedMsg = Message.fromByteArray(receivePacket.getData());
+			/*System.out.println("RECEIVED: ");
+			System.out.println(new String(receivePacket.getData()));*/
+			Message receivedMsg = Message.fromByteArray(receivePacket.getData());
+			Peer.writeChunk(receivedMsg);
 		}
 	}
 	

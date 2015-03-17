@@ -142,60 +142,95 @@ public class Message {
 	
 	@SuppressWarnings("deprecation")
 	public static Message fromByteArray(byte[] bArray) throws IOException{
-		ByteArrayInputStream byteArrayStream = new ByteArrayInputStream(bArray);
-		DataInputStream dis = new DataInputStream(byteArrayStream);
-		BufferedReader bufr = new BufferedReader(new InputStreamReader(byteArrayStream));
+		Message msg = null;
+		String message = new String(bArray);
 		
+		String[] messageParts = message.split("\\r\\n\\r\\n");
+		String messageHeader = messageParts[0];
+		String messageBody = messageParts[1];
 		
-		String str = null;
-		try {
-			str = bufr.readLine();
-			dis.readLine();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		String[] msgParams = str.split(" ");
+		String[] headerParts = messageHeader.split(" ");
+		String messageType = headerParts[0];
+		String fileID = headerParts[2];
+		String chunkNo = headerParts[3];
+		String replicationDegree = headerParts[4];
 		
-		int paramNum = 0;
-		Type t = null;
-		try{
-			t = Type.valueOf(msgParams[paramNum]);
-		} catch(Exception e){
-			throw new IOException("Unrecognized Message Type.");
-		}
-		
-		Message msg = new Message(t);
-		
-		paramNum+=2; //SKIP THE VERSION
-		String fileID = msgParams[paramNum];
-		//String[] chars = fileID.split("(?<=\\G)");
-		String[] chars = fileID.split("");
-		byte[] tempFileID = new byte[32];
-		
-		/*for(int i = 0; i < chars.length; i++){
-			System.out.print(chars[i]);
-		}*/
-		
-		for(int i = chars.length - 1; i >= 0; --i){
-			System.out.println(i);
-			tempFileID[(tempFileID.length-1) - i] = (byte) Short.parseShort(chars[i],16);
+		if(messageType.equals("PUTCHUNK")){
+			msg = new Message(Message.Type.PUTCHUNK);
+			msg.setVersion(1, 0);
+			msg.setFileID(hexStringToByteArray(fileID));
+			msg.setChunkNo(Integer.parseInt(chunkNo));
+			msg.setReplicationDegree(Integer.parseInt(replicationDegree));
+			byte[] body = messageBody.getBytes();
+			msg.setBody(body);
+			return msg;
 		}
 		
-		msg.setFileID(tempFileID);
-		
-		if(msg.type == Type.PUTCHUNK){
-			paramNum++;
-			String replicationDegStr = msgParams[paramNum];
-			msg.replicationDeg = Byte.parseByte(replicationDegStr);
-		}
-		
-		if(msg.type == Type.PUTCHUNK){
-			dis.skip(2);
-			msg.body = new byte[dis.available()];
-			dis.readFully(msg.body);
-		}
-		
-		return msg;
+		return null;
+	}
+
+	public static byte[] hexStringToByteArray(String s) {
+	    int len = s.length();
+	    byte[] data = new byte[len / 2];
+	    for (int i = 0; i < len; i += 2) {
+	        data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i+1), 16));
+	    }
+	    return data;
+	}
+	
+	@Override
+	public String toString(){
+		return new String(this.toByteArray());
 	}
 	
 }
+
+
+/*ByteArrayInputStream byteArrayStream = new ByteArrayInputStream(bArray);
+DataInputStream dis = new DataInputStream(byteArrayStream);
+BufferedReader bufr = new BufferedReader(new InputStreamReader(byteArrayStream));
+
+System.out.println(new String(bArray));
+
+String str = null;
+try {
+	str = bufr.readLine();
+	str = dis.readLine();
+} catch (IOException e1) {
+	e1.printStackTrace();
+}
+String[] msgParams = str.split(" ");
+
+int paramNum = 0;
+Type t = null;
+try{
+	t = Type.valueOf(msgParams[paramNum]);
+} catch(Exception e){
+	throw new IOException("Unrecognized Message Type.");
+}
+
+Message msg = new Message(t);
+
+paramNum+=2; //SKIP THE VERSION
+String fileID = msgParams[paramNum];
+
+byte[] tempFileID = hexStringToByteArray(fileID);
+
+msg.setFileID(tempFileID);
+
+if(msg.type == Type.PUTCHUNK){
+	paramNum++;
+	String replicationDegStr = msgParams[paramNum];
+	msg.replicationDeg = Byte.parseByte(replicationDegStr);
+}
+
+if(msg.type == Type.PUTCHUNK){
+	dis.skip(2);
+	msg.body = new byte[dis.available()];
+	dis.readFully(msg.body);
+}
+
+
+System.out.println(msg.getHexFileID());
+System.out.println(new String(msg.getBody()));
+*/
