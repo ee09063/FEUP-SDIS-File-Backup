@@ -14,8 +14,6 @@ public class FileSystem {
 		File file = new File(path).getAbsoluteFile();
 		createDirectory(file.getParent());
 		
-		System.out.println("DATA: " + new String(data));
-		
 		if(file.exists()) return 0L;
 		try{
 			FileOutputStream fos = new FileOutputStream(file);

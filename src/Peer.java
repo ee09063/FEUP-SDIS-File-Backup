@@ -48,6 +48,7 @@ public class Peer {
 		if(msg.type == Message.Type.PUTCHUNK){
 			path = backupPath + File.separator + msg.getHexFileID() + File.separator + msg.chunkNo.toString();
 		}
+		//System.out.println(new String(msg.getBody()));
 		long writtenSize = FileSystem.writeByteArray(path, msg.getBody());
 	}
 	

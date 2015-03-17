@@ -145,7 +145,7 @@ public class Message {
 		Message msg = null;
 		String message = new String(bArray);
 		
-		String[] messageParts = message.split("\\r\\n\\r\\n");
+		String[] messageParts = message.split("\\r\\n\\r\\n",2);
 		String messageHeader = messageParts[0];
 		String messageBody = messageParts[1];
 		
