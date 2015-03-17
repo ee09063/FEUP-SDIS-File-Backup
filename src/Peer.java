@@ -37,10 +37,11 @@ public class Peer {
 			DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 			mdb_socket.receive(receivePacket);
 			System.out.println("RECEIVED: ");
+			//Message receivedMsg = Message.fromByteArray(receivePacket.getData());
 		}
 	}
 	
-	public void writeChunk(Message msg){
+	public static void writeChunk(Message msg){
 		String path = null;
 		if(msg.type == Message.Type.PUTCHUNK){
 			path = backupPath + File.separator + msg.getHexFileID() + File.separator + msg.chunkNo.toString();
@@ -95,6 +96,6 @@ public class Peer {
 	public static String mdr_addr;
 	public static InetSocketAddress mdr_saddr;
 	
-	private final String backupPath = "backup";
+	private final static String backupPath = "backup";
 	
 }

@@ -1,6 +1,8 @@
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -142,12 +144,14 @@ public class Message {
 	public static Message fromByteArray(byte[] bArray) throws IOException{
 		ByteArrayInputStream byteArrayStream = new ByteArrayInputStream(bArray);
 		DataInputStream dis = new DataInputStream(byteArrayStream);
+		BufferedReader bufr = new BufferedReader(new InputStreamReader(byteArrayStream));
+		
 		
 		String str = null;
 		try {
-			str = dis.readLine();
+			str = bufr.readLine();
+			dis.readLine();
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		String[] msgParams = str.split(" ");
@@ -162,12 +166,18 @@ public class Message {
 		
 		Message msg = new Message(t);
 		
-		paramNum++;
+		paramNum+=2; //SKIP THE VERSION
 		String fileID = msgParams[paramNum];
-		String[] chars = fileID.split("(?<=\\G)");
+		//String[] chars = fileID.split("(?<=\\G)");
+		String[] chars = fileID.split("");
 		byte[] tempFileID = new byte[32];
 		
+		/*for(int i = 0; i < chars.length; i++){
+			System.out.print(chars[i]);
+		}*/
+		
 		for(int i = chars.length - 1; i >= 0; --i){
+			System.out.println(i);
 			tempFileID[(tempFileID.length-1) - i] = (byte) Short.parseShort(chars[i],16);
 		}
 		

@@ -11,7 +11,9 @@ public class PeerChunkBackup {
 		storedMsg.setFileID(msg.getFileID());
 		storedMsg.setVersion(1, 0);
 		storedMsg.setChunkNo(msg.getChunkNo());
+		
 		/*System.out.println(new String(storedMsg.toByteArray()));*/
 		
+		Peer.writeChunk(msg);
 	}
 }
