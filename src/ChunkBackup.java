@@ -20,11 +20,6 @@ public class ChunkBackup {
 										  temp.length,
 										  Peer.mdb_saddr.getAddress(),
 										  Peer.mdb_saddr.getPort());
-		
-		//System.out.println("SENT MESSAGE");
-		/*TaskManager task = new TaskManager();
-		task.startTask(msg, chunk);*/
-		
 		SendDelay sd = new SendDelay();
 		sd.startTask(msgPacket);
 	}
@@ -36,7 +31,7 @@ public class ChunkBackup {
 		public void startTask(DatagramPacket p){
 			this.p = p;
 			Random rand = new Random();
-			timer.schedule(new PeriodicTask(), rand.nextInt(2000));
+			timer.schedule(new PeriodicTask(), rand.nextInt(100));
 		}
 		
 		private class PeriodicTask extends TimerTask{
