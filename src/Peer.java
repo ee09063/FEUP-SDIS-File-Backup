@@ -11,7 +11,8 @@ import java.util.Vector;
 public class Peer {
 	/*ARGUMENTS -> MC_IP, MC_PORT, MDB_IP, MDB_PORT, MBD_IP, MDB_PORT*/
 	
-	static Vector<Message> stored;
+	static Vector<Message> stored_messages;
+	static Vector<Message> putchunk_messages;
 	
 	
 	public static void main(String args[]) throws IOException{
@@ -19,11 +20,20 @@ public class Peer {
 			setUpSockets(args);
 		}*/
 		setUpSocketsDefault();
-		/*
-		 * 
-		 */
 		
-		stored = new Vector<Message>();
+		stored_messages = new Vector<Message>();
+		putchunk_messages = new Vector<Message>();
+		
+		ListenToMC ltmc = new ListenToMC();
+		Thread ltmcThread = new Thread(ltmc);
+		ltmcThread.start();
+		
+		ListenToMDB ltmdb = new ListenToMDB();
+		Thread ltmdbThread = new Thread(ltmdb);
+	
+		BackUpManager bum = new BackUpManager();
+		Thread bumThread = new Thread(bum);
+		
 		
 		while(true){
 			BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
@@ -34,14 +44,6 @@ public class Peer {
 				MyFile test = new MyFile(filename);
 				FileBackup fb = new FileBackup(test, 1);
 				fb.Send();
-				mc_socket.joinGroup(mc_saddr.getAddress());
-				while(true){
-					byte[] receiveData = new byte[Chunk.CHUNK_MAX_SIZE];
-					DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);	
-					mc_socket.receive(receivePacket);
-					Message receivedMsg = Message.fromByteArray(receivePacket.getData());
-					filterMessage(receivedMsg);
-				}
 			} else if(command.equals("PEER")){
 				break;
 			} else{
@@ -52,20 +54,12 @@ public class Peer {
 		 * 
 		 */
 		System.out.println("ACTING AS PEER - JOINING GROUP...");
-		
-		mdb_socket.joinGroup(mdb_saddr.getAddress());
-		
-		while(true){
-			byte[] receiveData = new byte[Chunk.CHUNK_MAX_SIZE];
-			DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-			mdb_socket.receive(receivePacket);
-			Message receivedMsg = Message.fromByteArray(receivePacket.getData());
-			filterMessage(receivedMsg);
-		}
+		ltmdbThread.start();
+		bumThread.start();
 	}
 	
 	public static void writeChunk(Message msg){
-		System.out.println("WRITING CHUNK " + msg.chunkNo.toString());
+		//System.out.println("WRITING CHUNK " + msg.chunkNo.toString());
 		String path = null;
 		if(msg.type == Message.Type.PUTCHUNK){
 			path = backupPath + File.separator + msg.getHexFileID() + File.separator + msg.chunkNo.toString();
@@ -73,15 +67,83 @@ public class Peer {
 		long writtenSize = FileSystem.writeByteArray(path, msg.getBody());
 	}
 	
-	public static void filterMessage(Message message){
-		//System.out.println("FILTERING MESSAGE");
-		if(message.type == Message.Type.STORED){
-			stored.add(message);
-			System.out.println("STORED MESSAGES : " + stored.size());
-		} else if(message.type == Message.Type.PUTCHUNK){
-			PeerChunkBackup pcb = new PeerChunkBackup(message);
+	
+	public static class BackUpManager implements Runnable{
+		@Override
+		public void run() {
+			while(true){
+				if(!putchunk_messages.isEmpty()){
+					Message message = putchunk_messages.firstElement();
+					putchunk_messages.removeElementAt(0);
+					PeerChunkBackup pcb = new PeerChunkBackup(message);
+				}	
+			}
+		}	
+	}
+	
+	public static class ListenToMC implements Runnable{
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			try {
+				mc_socket.joinGroup(mc_saddr.getAddress());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			while(true){
+				byte[] receiveData = new byte[Chunk.CHUNK_MAX_SIZE];
+				DatagramPacket rp = new DatagramPacket(receiveData, receiveData.length);
+				try {
+					mc_socket.receive(rp);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				Message message = null;
+				try {
+					message = Message.fromByteArray(rp.getData());
+					if(message.type == Message.Type.STORED){
+						stored_messages.add(message);
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 	}
+	
+	public static class ListenToMDB implements Runnable{
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			try {
+				mdb_socket.joinGroup(mdb_saddr.getAddress());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			while(true){
+				byte[] receiveData = new byte[Chunk.CHUNK_MAX_SIZE];
+				DatagramPacket rp = new DatagramPacket(receiveData, receiveData.length);
+				try {
+					mdb_socket.receive(rp);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				Message message = null;
+				try {
+					message = Message.fromByteArray(rp.getData());
+					if(message.type == Message.Type.PUTCHUNK){
+						putchunk_messages.add(message);
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	
 	
 	static void setUpSockets(String args[]) throws IOException{
 		/*MULTICAST CONTROL SETUP*/

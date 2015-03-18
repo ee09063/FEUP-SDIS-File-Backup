@@ -21,33 +21,36 @@ public class ChunkBackup {
 										  Peer.mdb_saddr.getAddress(),
 										  Peer.mdb_saddr.getPort());
 		SendDelay sd = new SendDelay();
-		sd.startTask(msgPacket);
+		sd.startTask(msgPacket, chunk, msg);
 	}
 	
 	public class SendDelay{
 		private Timer timer = new Timer();
 		DatagramPacket p;
+		Message message;
+		Chunk chunk;
 		
-		public void startTask(DatagramPacket p){
+		public void startTask(DatagramPacket p, Chunk chunk, Message msg){
 			this.p = p;
+			this.chunk = chunk;
+			this.message = msg;
 			Random rand = new Random();
-			timer.schedule(new PeriodicTask(), rand.nextInt(100));
+			timer.schedule(new PeriodicTask(), rand.nextInt(150));
 		}
 		
 		private class PeriodicTask extends TimerTask{
 			@Override
 			public void run() {
 				try {
-					System.out.println("SENDING MESSAGE");
+					//System.out.println("SENDING MESSAGE");
 					Peer.mdb_socket.send(p);
+					TaskManager task = new TaskManager();
+					task.startTask(message, chunk);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}	
 		}
-
-			
-		
 	}
 	
 	public class TaskManager {
@@ -66,8 +69,9 @@ public class ChunkBackup {
 	        public void run(){
 	        	count++;
 	        	if(count == 5){
-	        		/**/
+	        		System.out.println("GAME OVER MAN, GAME OVER!");
 	        	}else{
+	        		System.out.println(Peer.stored_messages.size());
 	        		int numStored = 0; //GET THE STORED MESSAGES HERE
 	        		if(numStored >= chunk.replicationDeg){
 	        			

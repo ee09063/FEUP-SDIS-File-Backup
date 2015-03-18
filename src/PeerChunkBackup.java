@@ -30,7 +30,7 @@ public class PeerChunkBackup {
 												Peer.mc_saddr.getAddress(),
 												Peer.mc_saddr.getPort());
 			try {
-				System.out.println("ANSWERING WITH STORED " + msg.getChunkNo());
+				//System.out.println("ANSWERING WITH STORED " + msg.getChunkNo());
 				Peer.mc_socket.send(storedPacket);
 			} catch (IOException e) {
 				e.printStackTrace();
