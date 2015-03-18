@@ -153,9 +153,9 @@ public class Message {
 		String messageType = headerParts[0];
 		String fileID = headerParts[2];
 		String chunkNo = headerParts[3];
-		String replicationDegree = headerParts[4];
 		
 		if(messageType.equals("PUTCHUNK")){
+			String replicationDegree = headerParts[4];
 			msg = new Message(Message.Type.PUTCHUNK);
 			msg.setVersion(1, 0);
 			msg.setFileID(hexStringToByteArray(fileID));
@@ -164,8 +164,14 @@ public class Message {
 			byte[] body = messageBody.getBytes();
 			msg.setBody(body);
 			return msg;
+		} else if(messageType.equals("STORED")) {
+			msg = new Message(Message.Type.STORED);
+			msg.setVersion(1, 0);
+			msg.setFileID(hexStringToByteArray(fileID));
+			msg.setChunkNo(Integer.parseInt(chunkNo));
+			msg.setBody(null);
+			return msg;
 		}
-		
 		return null;
 	}
 
@@ -184,53 +190,3 @@ public class Message {
 	}
 	
 }
-
-
-/*ByteArrayInputStream byteArrayStream = new ByteArrayInputStream(bArray);
-DataInputStream dis = new DataInputStream(byteArrayStream);
-BufferedReader bufr = new BufferedReader(new InputStreamReader(byteArrayStream));
-
-System.out.println(new String(bArray));
-
-String str = null;
-try {
-	str = bufr.readLine();
-	str = dis.readLine();
-} catch (IOException e1) {
-	e1.printStackTrace();
-}
-String[] msgParams = str.split(" ");
-
-int paramNum = 0;
-Type t = null;
-try{
-	t = Type.valueOf(msgParams[paramNum]);
-} catch(Exception e){
-	throw new IOException("Unrecognized Message Type.");
-}
-
-Message msg = new Message(t);
-
-paramNum+=2; //SKIP THE VERSION
-String fileID = msgParams[paramNum];
-
-byte[] tempFileID = hexStringToByteArray(fileID);
-
-msg.setFileID(tempFileID);
-
-if(msg.type == Type.PUTCHUNK){
-	paramNum++;
-	String replicationDegStr = msgParams[paramNum];
-	msg.replicationDeg = Byte.parseByte(replicationDegStr);
-}
-
-if(msg.type == Type.PUTCHUNK){
-	dis.skip(2);
-	msg.body = new byte[dis.available()];
-	dis.readFully(msg.body);
-}
-
-
-System.out.println(msg.getHexFileID());
-System.out.println(new String(msg.getBody()));
-*/

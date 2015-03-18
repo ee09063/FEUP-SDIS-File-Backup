@@ -5,15 +5,26 @@ import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
+import java.util.Vector;
 
 
 public class Peer {
 	/*ARGUMENTS -> MC_IP, MC_PORT, MDB_IP, MDB_PORT, MBD_IP, MDB_PORT*/
+	
+	static Vector<Message> stored;
+	
+	
 	public static void main(String args[]) throws IOException{
 		/*if(args.length == 6){
 			setUpSockets(args);
 		}*/
 		setUpSocketsDefault();
+		/*
+		 * 
+		 */
+		
+		stored = new Vector<Message>();
+		
 		while(true){
 			BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
 			String command = inFromUser.readLine();
@@ -23,33 +34,53 @@ public class Peer {
 				MyFile test = new MyFile(filename);
 				FileBackup fb = new FileBackup(test, 1);
 				fb.Send();
+				mc_socket.joinGroup(mc_saddr.getAddress());
+				while(true){
+					byte[] receiveData = new byte[Chunk.CHUNK_MAX_SIZE];
+					DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);	
+					mc_socket.receive(receivePacket);
+					Message receivedMsg = Message.fromByteArray(receivePacket.getData());
+					filterMessage(receivedMsg);
+				}
 			} else if(command.equals("PEER")){
 				break;
 			} else{
 				System.out.println("INVALID INPUT");
-				System.exit(-1);
 			}
 		}
+		/*
+		 * 
+		 */
 		System.out.println("ACTING AS PEER - JOINING GROUP...");
+		
 		mdb_socket.joinGroup(mdb_saddr.getAddress());
+		
 		while(true){
 			byte[] receiveData = new byte[Chunk.CHUNK_MAX_SIZE];
 			DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 			mdb_socket.receive(receivePacket);
-			/*System.out.println("RECEIVED: ");
-			System.out.println(new String(receivePacket.getData()));*/
 			Message receivedMsg = Message.fromByteArray(receivePacket.getData());
-			Peer.writeChunk(receivedMsg);
+			filterMessage(receivedMsg);
 		}
 	}
 	
 	public static void writeChunk(Message msg){
+		System.out.println("WRITING CHUNK " + msg.chunkNo.toString());
 		String path = null;
 		if(msg.type == Message.Type.PUTCHUNK){
 			path = backupPath + File.separator + msg.getHexFileID() + File.separator + msg.chunkNo.toString();
 		}
-		//System.out.println(new String(msg.getBody()));
 		long writtenSize = FileSystem.writeByteArray(path, msg.getBody());
+	}
+	
+	public static void filterMessage(Message message){
+		//System.out.println("FILTERING MESSAGE");
+		if(message.type == Message.Type.STORED){
+			stored.add(message);
+			System.out.println("STORED MESSAGES : " + stored.size());
+		} else if(message.type == Message.Type.PUTCHUNK){
+			PeerChunkBackup pcb = new PeerChunkBackup(message);
+		}
 	}
 	
 	static void setUpSockets(String args[]) throws IOException{

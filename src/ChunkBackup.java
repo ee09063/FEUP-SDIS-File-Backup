@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -13,15 +14,45 @@ public class ChunkBackup {
 	public ChunkBackup(Chunk chunk) throws IOException{
 		msg = Message.makePutChunk(chunk);
 		
+		byte[] temp = msg.toByteArray();
 		
-		msgPacket = new DatagramPacket(msg.toByteArray(),
-										  msg.toByteArray().length,
+		msgPacket = new DatagramPacket(temp,
+										  temp.length,
 										  Peer.mdb_saddr.getAddress(),
 										  Peer.mdb_saddr.getPort());
-		Peer.mdb_socket.send(msgPacket);
-		System.out.println("SENT MESSAGE");
+		
+		//System.out.println("SENT MESSAGE");
 		/*TaskManager task = new TaskManager();
 		task.startTask(msg, chunk);*/
+		
+		SendDelay sd = new SendDelay();
+		sd.startTask(msgPacket);
+	}
+	
+	public class SendDelay{
+		private Timer timer = new Timer();
+		DatagramPacket p;
+		
+		public void startTask(DatagramPacket p){
+			this.p = p;
+			Random rand = new Random();
+			timer.schedule(new PeriodicTask(), rand.nextInt(2000));
+		}
+		
+		private class PeriodicTask extends TimerTask{
+			@Override
+			public void run() {
+				try {
+					System.out.println("SENDING MESSAGE");
+					Peer.mdb_socket.send(p);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}	
+		}
+
+			
+		
 	}
 	
 	public class TaskManager {

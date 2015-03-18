@@ -19,11 +19,11 @@ public class FileBackup {
 		this.numChunks = file.getNumberofChunks();
 		this.file.open();
 		
-		System.out.println("Number of chunks: " + this.numChunks + "  Size: " + this.file.getFileSize());
+		//System.out.println("Number of chunks: " + this.numChunks + "  Size: " + this.file.getFileSize());
 		
 		for(int i = 0; i < numChunks; i++){
 			byte[] chunkArray = this.file.getChunk(i);
-			Chunk chunk = new Chunk(i, this.replicationDegree, this.file.getFileID(), chunkArray);
+			Chunk chunk = new Chunk(i+1, this.replicationDegree, this.file.getFileID(), chunkArray);
 			new ChunkBackup(chunk);
 		}
 	}

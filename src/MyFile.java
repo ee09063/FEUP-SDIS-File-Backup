@@ -37,7 +37,6 @@ public class MyFile {
 			MessageDigest digest = MessageDigest.getInstance("SHA-256");
 			String codifier = this.absPath + this.lastModification + new Date().getTime();
 			this.setFileID(new FileID(digest.digest(codifier.getBytes(StandardCharsets.UTF_8))));
-			System.out.println(this.fileID.toString());
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

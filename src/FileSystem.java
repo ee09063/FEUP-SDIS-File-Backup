@@ -14,10 +14,14 @@ public class FileSystem {
 		File file = new File(path).getAbsoluteFile();
 		createDirectory(file.getParent());
 		
+		String str = new String(data);
+		String trimmedStr = str.trim();
+		byte[] dataT = trimmedStr.getBytes();
+		
 		if(file.exists()) return 0L;
 		try{
 			FileOutputStream fos = new FileOutputStream(file);
-			fos.write(data);
+			fos.write(dataT);
 			fos.close();
 			return file.length();
 		} catch (IOException e){
