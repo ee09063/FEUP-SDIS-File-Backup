@@ -6,6 +6,8 @@ import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.util.Vector;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 public class Peer {
@@ -13,14 +15,14 @@ public class Peer {
 	
 	static Vector<Message> stored_messages;
 	static Vector<Message> putchunk_messages;
-	
+	public static Lock mutex;
 	
 	public static void main(String args[]) throws IOException{
 		/*if(args.length == 6){
 			setUpSockets(args);
 		}*/
 		setUpSocketsDefault();
-		
+		mutex = new ReentrantLock(true);
 		stored_messages = new Vector<Message>();
 		putchunk_messages = new Vector<Message>();
 		
@@ -101,9 +103,14 @@ public class Peer {
 				Message message = null;
 				try {
 					message = Message.fromByteArray(rp.getData());
+					mutex.lock();
+					System.out.println("ADDLOCKED");
+					System.out.println("ADDING");
 					if(message.type == Message.Type.STORED){
 						stored_messages.add(message);
 					}
+					mutex.unlock();
+					System.out.println("ADDUNLOCKED");
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -143,7 +150,29 @@ public class Peer {
 		}
 	}
 	
+	public static int getStoredMessages(Chunk chunk){
+		int count = 0;
+		mutex.lock();
+		for(Message m : stored_messages){
+			if(m.getFileID().toString().equals(chunk.fileID._hexFileID)
+					&& m.chunkNo == chunk.chunkNo){
+				count++;
+			}
+		}
+		mutex.unlock();
+		return count;
+	}
 	
+	public static void removeStoredMessages(Chunk chunk){
+		System.out.println("REMOVING");
+		for(int i = stored_messages.size()-1; i >=0; i--){
+			Message m = stored_messages.elementAt(i);
+			if(m.getFileID().toString().equals(chunk.fileID._hexFileID)
+					&& m.chunkNo == chunk.chunkNo){
+				stored_messages.remove(m);
+			}
+		}
+	}
 	
 	static void setUpSockets(String args[]) throws IOException{
 		/*MULTICAST CONTROL SETUP*/
