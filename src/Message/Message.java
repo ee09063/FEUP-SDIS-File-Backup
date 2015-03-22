@@ -9,7 +9,7 @@ import Main.Chunk;
 
 public class Message {
 	public enum Type{
-		PUTCHUNK, GETCHUNK, CHUNK, STORED
+		PUTCHUNK, GETCHUNK, CHUNK, STORED, DELETE
 	}
 	
 	public final Type type;
@@ -161,6 +161,13 @@ public class Message {
         return result;
     }
 	
+	 public static Message makeDelete(FileID fileID){
+		 Message result = new Message(Type.DELETE);
+		 result.setVersion(1, 0);
+		 result.setFileID(fileID);
+		 return result;
+	 }
+	 
 	public static Message fromByteArray(byte[] bArray) throws IOException{
 		Message msg = null;
 		String message = new String(bArray);
@@ -172,9 +179,10 @@ public class Message {
 		String[] headerParts = messageHeader.split(" ");
 		String messageType = headerParts[0];
 		String fileID = headerParts[2];
-		String chunkNo = headerParts[3];
+		
 		
 		if(messageType.equals("PUTCHUNK")){
+			String chunkNo = headerParts[3];
 			String replicationDegree = headerParts[4];
 			msg = new Message(Message.Type.PUTCHUNK);
 			msg.setVersion(1, 0);
@@ -185,6 +193,7 @@ public class Message {
 			msg.setBody(body);
 			return msg;
 		} else if(messageType.equals("STORED")) {
+			String chunkNo = headerParts[3];
 			msg = new Message(Message.Type.STORED);
 			msg.setVersion(1, 0);
 			msg.setFileID(hexStringToByteArray(fileID));
@@ -192,6 +201,7 @@ public class Message {
 			msg.setBody(null);
 			return msg;
 		} else if(messageType.equals("GETCHUNK")) {
+			String chunkNo = headerParts[3];
 			msg = new Message(Message.Type.GETCHUNK);
 			msg.setVersion(1, 0);
 			msg.setFileID(hexStringToByteArray(fileID));
@@ -199,12 +209,19 @@ public class Message {
 			msg.setBody(null);
 			return msg;
 		} else if(messageType.equals("CHUNK")){
+			String chunkNo = headerParts[3];
 			msg = new Message(Message.Type.CHUNK);
 			msg.setVersion(1, 0);
 			msg.setFileID(hexStringToByteArray(fileID));
 			msg.setChunkNo(Integer.parseInt(chunkNo));
 			byte[] body = messageBody.getBytes();
 			msg.setBody(body);
+			return msg;
+		} else if(messageType.equals("DELETE")){
+			msg = new Message(Message.Type.DELETE);
+			msg.setVersion(1, 0);
+			msg.setFileID(hexStringToByteArray(fileID));
+			msg.setBody(null);
 			return msg;
 		}
 		return null;

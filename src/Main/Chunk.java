@@ -16,7 +16,7 @@ public class Chunk {
 		if(rd < 1 || rd > 9) throw new IllegalArgumentException("ERROR: Replication Degree of Chunk outside allowed Values");
 		this.replicationDeg = rd;
 		this.fileID = fileID;
-		if(data.length > CHUNK_MAX_SIZE) throw new IllegalArgumentException("ERROR: Data larger than CHUNK_MAX_SIZE");
+		if(data.length > CHUNK_MAX_SIZE) throw new IllegalArgumentException("ERROR: Data larger than CHUNK_MAX_SIZE -> " + data.length);
 		this.data = data;
 	}
 	

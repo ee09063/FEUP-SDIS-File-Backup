@@ -1,5 +1,6 @@
 package Files;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -24,6 +25,8 @@ public class MyFile {
 	private long lastModification;
 	private long fileSize;
 	private FileID fileID;
+	//private byte[] FileContent;
+	
 	
 	private RandomAccessFile raf;
 	
@@ -43,10 +46,16 @@ public class MyFile {
 			String codifier = this.absPath + this.lastModification + new Date().getTime();
 			this.setFileID(new FileID(digest.digest(codifier.getBytes(StandardCharsets.UTF_8))));
 			/**/
-			Pair pair = new Pair(this.fileID, this.getNumberofChunks());
+			Pair<FileID, Integer> pair = new Pair<FileID, Integer>(this.fileID, this.getNumberofChunks());
 			if(!Peer.fileList.containsKey(p.toString())){
+				System.out.println("ADDING FILE TO LOCAL STORAGE...");
+				System.out.println(p.toString());
 				Peer.fileList.put(p.toString(), pair);
 			}
+			/**/
+			/*FileInputStream fis = new FileInputStream(myFile);
+			FileContent = new byte[(int) fileSize];
+			fis.read(FileContent, 0, (int)fileSize);
 			/**/
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
@@ -75,6 +84,18 @@ public class MyFile {
 	}
 	
 	public byte[] getChunk(int chunkNo) throws IOException{
+		/*long chunkPos = chunkNo * Chunk.CHUNK_MAX_SIZE;
+		long arraySize = Math.min(Chunk.CHUNK_MAX_SIZE, this.fileSize - chunkPos);
+		
+		FileInputStream fis = new FileInputStream(myFile);
+		
+		byte fileContent[] = new byte[(int) arraySize];
+		
+		fis.skip(chunkPos);
+		fis.read(fileContent, 0, (int)arraySize);
+
+		return fileContent;*/
+		
 		long chunkPos = chunkNo * Chunk.CHUNK_MAX_SIZE;
 		long arraySize = Math.min(Chunk.CHUNK_MAX_SIZE, this.fileSize - chunkPos);
 		if(chunkPos > this.fileSize || raf == null){
@@ -87,7 +108,10 @@ public class MyFile {
 			raf.read(result);
 		}
 		
+		raf.close();
+		
 		return result == null? new byte[0] : result;
+		
 	}
 	
 	public void open() throws FileNotFoundException{
