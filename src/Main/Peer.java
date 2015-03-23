@@ -39,6 +39,13 @@ public class Peer {
 	public static Lock mutex_chunk_messages;
 	public static ConcurrentHashMap<String, Pair> fileList;
 	
+	private static Thread ltmcThread;
+	private static Thread ltmdbThread;
+	private static Thread ltmdrThread;
+	private static Thread bumThread;
+	private static Thread rmThread;
+	private static Thread dmThread;
+	
 	public static void main(String args[]) throws IOException{
 		/*if(args.length == 6){
 			setUpSockets(args);
@@ -56,25 +63,25 @@ public class Peer {
 		fileList = new ConcurrentHashMap<String, Pair>();
 		
 		ListenToMC ltmc = new ListenToMC();
-		Thread ltmcThread = new Thread(ltmc);
+		ltmcThread = new Thread(ltmc);
 		ltmcThread.start();
 		
 		ListenToMDB ltmdb = new ListenToMDB();
-		Thread ltmdbThread = new Thread(ltmdb);
+		ltmdbThread = new Thread(ltmdb);
 	
 		ListenToMDR ltmdr = new ListenToMDR();
-		Thread ltmdrThread = new Thread(ltmdr);
+		ltmdrThread = new Thread(ltmdr);
 		ltmdrThread.start();
 		
 		BackUpManager bum = new BackUpManager();
-		Thread bumThread = new Thread(bum);
+		bumThread = new Thread(bum);
 		
 		RestoreManager rm = new RestoreManager();
 		Thread rmThread = new Thread(rm);
 		rmThread.start();
 		
 		DeleteManager dm = new DeleteManager();
-		Thread dmThread = new Thread(dm);
+		dmThread = new Thread(dm);
 		
 		while(true){
 			BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
@@ -82,8 +89,8 @@ public class Peer {
 			String parts[] = command.split(" ");
 			if(parts.length == 2 && parts[0].equals("BACKUP")){
 				String filename = parts[1];
-				MyFile test = new MyFile(filename);
-				FileBackup fb = new FileBackup(test, 1);
+				MyFile file = new MyFile(filename);
+				FileBackup fb = new FileBackup(file, 1);
 				fb.Send();
 			} else if(parts.length == 2 && parts[0].equals("RESTORE")){
 				String filename = parts[1];
@@ -91,8 +98,9 @@ public class Peer {
 			} else if(parts.length == 2 && parts[0].equals("DELETE")){
 				String filename = parts[1];
 				FileDeletion fd = new FileDeletion(filename);
-			}
-			else if(command.equals("PEER")){
+			} else if(command.equals("QUIT")){
+				quit();
+			} else if(command.equals("PEER")){
 				break;
 			} else {
 				System.out.println("INVALID INPUT");
@@ -183,6 +191,7 @@ public class Peer {
 					message = Message.fromByteArray(rp.getData());
 					mutex_stored_messages.lock();
 					if(message.type == Message.Type.STORED){
+						System.out.println("RECEIVED STORED MESSAGE...");
 						stored_messages.add(message);
 					} else if(message.type == Message.Type.GETCHUNK){
 						getchunk_messages.add(message);
@@ -249,10 +258,12 @@ public class Peer {
 				Message message = null;
 				try {
 					message = Message.fromByteArray(rp.getData());
+					mutex_chunk_messages.lock();
 					if(message.type == Message.Type.CHUNK){
 						if(!chunk_messages.contains(message))
 							chunk_messages.add(message);
 					}
+					mutex_chunk_messages.unlock();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -326,6 +337,25 @@ public class Peer {
 		if(file.delete())
 			System.out.println("DELETED " + path);
 		else System.out.println("FAILED TO DELETE FILE " + path);
+	}
+	
+	private static void quit(){
+		if(ltmcThread != null)
+			ltmcThread.interrupt();
+		if(ltmdbThread != null)
+			ltmdbThread.interrupt();
+		if(ltmdrThread != null)
+			ltmdrThread.interrupt();
+		if(bumThread != null)
+			bumThread.interrupt();
+		if(rmThread != null)
+			rmThread.interrupt();
+		if(dmThread != null)
+			dmThread.interrupt();
+		mc_socket.close();
+		mdb_socket.close();	
+		mdr_socket.close();
+		System.exit(0);
 	}
 	
 	static void setUpSockets(String args[]) throws IOException{

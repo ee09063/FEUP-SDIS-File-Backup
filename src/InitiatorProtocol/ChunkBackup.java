@@ -78,6 +78,7 @@ public class ChunkBackup {
 	        	}else{
 	        		int numStored = Peer.getStoredMessages(chunk);
 	        		if(numStored >= chunk.replicationDeg){
+	        			System.out.println("RECEIVED CONFIRMATION OF STORED CHUNK NO " + chunk.chunkNo + " RD: " + chunk.replicationDeg);
 	        			Peer.mutex_stored_messages.lock();
 	        			Peer.removeStoredMessages(chunk);
 	        			Peer.mutex_stored_messages.unlock();

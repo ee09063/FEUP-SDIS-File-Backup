@@ -1,6 +1,5 @@
 package Files;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -11,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.Date;
 
 import Main.Chunk;
@@ -108,10 +108,9 @@ public class MyFile {
 			raf.read(result);
 		}
 		
-		raf.close();
+		//raf.close();
 		
 		return result == null? new byte[0] : result;
-		
 	}
 	
 	public void open() throws FileNotFoundException{

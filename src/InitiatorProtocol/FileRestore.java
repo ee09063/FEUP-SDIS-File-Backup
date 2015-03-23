@@ -17,6 +17,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import Files.FileID;
+import Files.FileSystem;
 import Main.Chunk;
 import Main.Peer;
 import Message.Message;
@@ -31,6 +32,7 @@ public class FileRestore {
     private int count = 0;
     private Timer timer;
 	
+    
 	public FileRestore(String filePath, String destPath) throws FileNotFoundException{
 		
 		File myFile = new File(filePath);
@@ -66,7 +68,7 @@ public class FileRestore {
 		File dir = new File(Peer.getRestoreDir() + File.separator + this.fileId.toString());
 		
 		if(!dir.exists()){
-			throw new NoSuchFileException("Couldn't find directory '" + dir.getAbsolutePath() + "'");
+			return 0;
 		}
 		
 		File[] listing = dir.listFiles(new FilenameFilter(){
@@ -130,6 +132,10 @@ public class FileRestore {
 		}
 		
 		System.out.println("File Restoration Complete");
+		
+		/*DELETE THE DIRECTORY IN RESTORE*/
+		File deleteDir = new File(Peer.getRestoreDir() + File.separator + this.fileId.toString());
+		FileSystem.deleteFile(deleteDir);
 	}
 	
 	public class TaskManager {
