@@ -43,6 +43,8 @@ public class PeerChunkRestore {
 												Peer.mdr_saddr.getPort());
 			try {
 				Peer.mdr_socket.send(packet);
+				timer.cancel();
+				timer.purge();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

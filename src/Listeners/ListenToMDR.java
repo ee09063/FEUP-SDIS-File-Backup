@@ -26,15 +26,13 @@ public class ListenToMDR implements Runnable{
 			}
 			Message message = null;
 			try {
-				if(!rp.getAddress().equals(InetAddress.getLocalHost())){
-					message = Message.fromByteArray(rp.getData());
-					Peer.mutex_chunk_messages.lock();
-					if(message.type == Message.Type.CHUNK){
-						if(!Peer.chunk_messages.contains(message))
-							Peer.chunk_messages.add(message);
-					}
-					Peer.mutex_chunk_messages.unlock();
+				message = Message.fromByteArray(rp.getData());
+				Peer.mutex_chunk_messages.lock();
+				if(message.type == Message.Type.CHUNK){
+					if(!Peer.chunk_messages.contains(message))
+						Peer.chunk_messages.add(message);
 				}
+				Peer.mutex_chunk_messages.unlock();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

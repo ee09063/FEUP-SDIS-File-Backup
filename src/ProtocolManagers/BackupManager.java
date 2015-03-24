@@ -9,9 +9,10 @@ public class BackupManager implements Runnable{
 	public void run() {
 		while(true){
 			if(!Peer.putchunk_messages.isEmpty()){
+				Peer.mutex_putchunk_messages.lock();
 				Message message = Peer.putchunk_messages.firstElement();
 				Peer.putchunk_messages.removeElementAt(0);
-				System.out.println("RECEIVED BACKUP REQUEST...");
+				Peer.mutex_putchunk_messages.unlock();
 				@SuppressWarnings("unused")
 				PeerChunkBackup pcb = new PeerChunkBackup(message);
 			}	

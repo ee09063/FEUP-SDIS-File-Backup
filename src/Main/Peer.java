@@ -31,7 +31,6 @@ import ProtocolManagers.DeleteManager;
 import ProtocolManagers.RestoreManager;
 import ProtocolManagers.SpaceReclaimingManager;
 import Utilities.Pair;
-import Utilities.Triple;
 
 
 public class Peer {
@@ -56,6 +55,7 @@ public class Peer {
 	public static Lock mutex_stored_messages;
 	public static Lock mutex_chunk_messages;
 	public static Lock mutex_chunks;
+	public static Lock mutex_putchunk_messages;
 	/*
 	 * SPACE RECLAIMING
 	 */
@@ -92,6 +92,7 @@ public class Peer {
 		mutex_chunk_messages = new ReentrantLock(true);
 		mutex_space = new ReentrantLock(true);
 		mutex_chunks = new ReentrantLock(true);
+		mutex_putchunk_messages = new ReentrantLock(true);
 		
 		stored_messages = new Vector<Message>();
 		putchunk_messages = new Vector<Message>();
@@ -166,7 +167,7 @@ public class Peer {
 		String path = null;
 		if(msg.type == Message.Type.PUTCHUNK){
 			path = backupPath + File.separator + msg.getHexFileID() + File.separator + msg.chunkNo.toString();
-		} else {
+		} else {/*RESTORE*/
 			path = restorePath + File.separator + msg.getHexFileID() + File.separator + msg.chunkNo.toString();
 		}
 		long writtenSize = FileSystem.writeByteArray(path, msg.getBody());
@@ -246,12 +247,11 @@ public class Peer {
 	}
 	
 	public static void addChunk(Message message){
-		ChunkInfo newChunk = new ChunkInfo(message.getFileID().toString(), message.chunkNo, message.getReplicationDeg(), 0);
-		
+		ChunkInfo newChunk = new ChunkInfo(message.getFileID().toString(), message.chunkNo, message.getReplicationDeg(), 0);	
 		mutex_chunks.lock();
 		chunks.addElement(newChunk);
 		mutex_chunks.unlock();
-		System.out.println("ADDED A NEW CHUNK " + message.getFileID().toString() + " " + message.getChunkNo());
+		//System.out.println("ADDED A NEW CHUNK " + message.getFileID().toString() + " " + message.getChunkNo());
 	}
 	
 	public static ArrayList<ChunkInfo> getChunksWithHighRD(){

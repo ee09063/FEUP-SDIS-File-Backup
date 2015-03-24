@@ -47,6 +47,8 @@ public class PeerChunkBackup {
 												Peer.mc_saddr.getPort());
 			try {
 				Peer.mc_socket.send(storedPacket);
+				timer.cancel();
+				timer.purge();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

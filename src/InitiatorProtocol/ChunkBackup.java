@@ -45,7 +45,7 @@ public class ChunkBackup {
 			this.chunk = chunk;
 			this.message = msg;
 			Random rand = new Random();
-			timer.schedule(new PeriodicTask(), rand.nextInt(10));
+			timer.schedule(new PeriodicTask(), rand.nextInt(50));
 		}
 		
 		private class PeriodicTask extends TimerTask{
@@ -55,6 +55,8 @@ public class ChunkBackup {
 					Peer.mdb_socket.send(p);
 					TaskManager task = new TaskManager();
 					task.startTask(message, chunk);
+					timer.cancel();
+					timer.purge();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -79,6 +81,8 @@ public class ChunkBackup {
 	        	count++;
 	        	if(count == 5){
 	        		System.out.println("GAME OVER MAN, GAME OVER!");
+	        		timer.cancel();
+	        		timer.purge();
 	        	}else{
 	        		int numStored = Peer.getStoredMessages(chunk);
 	        		if(numStored >= chunk.replicationDeg){
@@ -86,8 +90,11 @@ public class ChunkBackup {
 	        			Peer.mutex_stored_messages.lock();
 	        			Peer.removeStoredMessages(chunk);
 	        			Peer.mutex_stored_messages.unlock();
+	        			timer.cancel();
+		        		timer.purge();
 	        		}else{
 	        			try {
+	        				System.out.println("MISSING CHUNK NO " + chunk.chunkNo);
 							Peer.mdb_socket.send(msgPacket);
 						} catch (IOException e) {
 							e.printStackTrace();

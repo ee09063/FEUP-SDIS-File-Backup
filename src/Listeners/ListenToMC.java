@@ -9,7 +9,6 @@ import Main.Chunk;
 import Main.Peer;
 import Message.Message;
 import Utilities.Pair;
-import Utilities.Triple;
 
 public class ListenToMC implements Runnable{
 	@Override
@@ -30,19 +29,17 @@ public class ListenToMC implements Runnable{
 			}
 			Message message = null;
 			try {
-				if(!rp.getAddress().equals(InetAddress.getLocalHost())){
-					message = Message.fromByteArray(rp.getData());
-					if(message.type == Message.Type.STORED){
-						Peer.mutex_stored_messages.lock();
-						this.filterStoredMessage(rp, message);
-						Peer.mutex_stored_messages.unlock();
-					} else if(message.type == Message.Type.GETCHUNK){
-						Peer.getchunk_messages.add(message);
-					} else if(message.type == Message.Type.DELETE){
-						Peer.delete_messages.add(message);
-					} else if(message.type == Message.Type.REMOVED){
-						Peer.removed_messages.add(message);
-					}
+				message = Message.fromByteArray(rp.getData());
+				if(message.type == Message.Type.STORED){
+					Peer.mutex_stored_messages.lock();
+					this.filterStoredMessage(rp, message);
+					Peer.mutex_stored_messages.unlock();
+				} else if(message.type == Message.Type.GETCHUNK){
+					Peer.getchunk_messages.add(message);
+				} else if(message.type == Message.Type.DELETE){
+					Peer.delete_messages.add(message);
+				} else if(message.type == Message.Type.REMOVED){
+					Peer.removed_messages.add(message);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

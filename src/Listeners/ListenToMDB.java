@@ -27,11 +27,12 @@ public class ListenToMDB implements Runnable{
 			}
 			Message message = null;
 			try {
-				if(!rp.getAddress().equals(InetAddress.getLocalHost())){
-					message = Message.fromByteArray(rp.getData());
-					if(message.type == Message.Type.PUTCHUNK){
-						Peer.putchunk_messages.add(message);
-					}
+				message = Message.fromByteArray(rp.getData());
+				if(message.type == Message.Type.PUTCHUNK){
+					System.out.println("RECEIVED PUTCHUNK REQUEST...");
+					Peer.mutex_putchunk_messages.lock();
+					Peer.putchunk_messages.add(message);
+					Peer.mutex_putchunk_messages.unlock();
 				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

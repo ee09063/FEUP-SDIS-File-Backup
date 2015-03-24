@@ -68,12 +68,16 @@ public class ChunkRestore{
 	        	count++;
 	        	if(count == 3){
 	        		System.out.println("GAME OVER MAN, GAME OVER! -> ChunkRestore");
+	        		timer.cancel();
+	        		timer.purge();
 	        	}else{
 	        		Peer.mutex_chunk_messages.lock();
 	        		Message m = Peer.chunkMessageExists(msg);
 	        		Peer.mutex_chunk_messages.unlock();
 	        		if(m != null){
 	        			Peer.writeChunk(m);
+	        			timer.cancel();
+	        			timer.purge();
 	        		}else{
 	        			try {
 							Peer.mc_socket.send(packet);

@@ -151,11 +151,15 @@ public class FileRestore {
 	        	count++;
 	        	if(count == 3){
 	        		System.out.println("GAME OVER MAN, GAME OVER! -> FileRestore");
+	        		timer.cancel();
+	        		timer.purge();
 	        	}else{
 	        		try {
 						if(countChunks() == numChunks){
 							try {
 								restoreFile();
+								timer.cancel();
+								timer.purge();
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
