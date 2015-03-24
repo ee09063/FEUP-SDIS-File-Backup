@@ -7,22 +7,6 @@ public class FileID {
 	public String _hexFileID = null;
 	public byte[] _fileID;
 	
-	public FileID(String hexString){
-		String[] chars = hexString.split("(?<=\\G..)");
-		
-		if(chars.length != 32){
-			throw new IllegalArgumentException("FileID must have 32 bytes. Has " + chars.length);
-		}
-		
-		_fileID = new byte[32];
-		
-		for(int i = 0; i < hexString.length(); i++){
-			_fileID[i] = (byte) Short.parseShort(chars[i], 16); 
-		}
-		
-		_hexFileID = hexString.toLowerCase();
-	}
-	
 	public FileID(byte[] id){
 		if(id.length != 32) throw new IllegalArgumentException("FileID Byte Array length must be 32. Has " + id.length);
 		_fileID = id.clone();

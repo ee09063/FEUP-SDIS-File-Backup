@@ -3,9 +3,11 @@ package Listeners;
 import java.io.IOException;
 import java.net.DatagramPacket;
 
+import Files.ChunkInfo;
 import Main.Chunk;
 import Main.Peer;
 import Message.Message;
+import Utilities.Pair;
 import Utilities.Triple;
 
 public class ListenToMC implements Runnable{
@@ -40,22 +42,18 @@ public class ListenToMC implements Runnable{
 				}
 				Peer.mutex_stored_messages.unlock();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 	}
 	
 	private void filterStoredMessage(DatagramPacket rp, Message message){
-		/*
-		 * IP, FILEID, CHUNKNO
-		 */
-		Triple<String, String, Integer> tr = new Triple<String, String, Integer>(rp.getAddress().toString(), message.getFileID().toString(), message.chunkNo);
-		if(Peer.peers.contains(tr)){
-			System.out.println("RECEIVED A DUPLICATE STORED MESSAGE FROM " + tr.getFirst() + " " + tr.getSecond() + " " + tr.getThird());
+		Pair<String, ChunkInfo> peer = new Pair<String, ChunkInfo>(rp.getAddress().toString(), new ChunkInfo(message.getFileID().toString(), message.chunkNo, 0, 0));
+		if(Peer.peers.contains(peer)){
+			System.out.println("RECEIVED A DUPLICATE STORED MESSAGE FROM " + peer.getfirst() + " " + peer.getsecond().getFileId().toString() + " " + peer.getsecond().getChunkNo());
 		} else {
-			System.out.println("RECEIVED STORED MESSAGE " + tr.getFirst() + " " + tr.getSecond() + " " + tr.getThird());
-			Peer.peers.addElement(tr);
+			System.out.println("RECEIVED STORED MESSAGE " + peer.getfirst() + " " + peer.getsecond().getFileId().toString() + " " + peer.getsecond().getChunkNo());
+			Peer.peers.addElement(peer);
 			Peer.stored_messages.add(message);
 			/*
 			 * UPDATE ACTUAL REPLICATION DEGREE OF THE CHUNK

@@ -5,6 +5,7 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import InitiatorProtocol.SpaceReclaiming;
 import Main.Peer;
 import Message.Message;
 import Message.Message.Type;
@@ -19,13 +20,22 @@ public class PeerChunkBackup {
 		this.msg = msg;
 		this.timer = new Timer();
 		Random rand = new Random();
+		/*
+		 * 
+		 */
+		if(msg.getBody().length > Peer.availableSpace){/*NEED TO RECLAIM SPACE*/
+			SpaceReclaiming sr = new SpaceReclaiming();
+		}
+		Peer.writeChunk(msg);
+		/*
+		 * 
+		 */
 		this.timer.schedule(new Task(), rand.nextInt(401));
 	}
 	
 	private class Task extends TimerTask{
 		@Override
 		public void run(){
-			Peer.writeChunk(msg);
 			Message storedMsg = new Message(Message.Type.STORED);
 			storedMsg.setFileID(msg.getFileID());
 			storedMsg.setVersion(1, 0);

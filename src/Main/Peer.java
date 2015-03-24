@@ -9,11 +9,13 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
+import java.util.ArrayList;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import Files.ChunkInfo;
 import Files.FileID;
 import Files.FileSystem;
 import Files.MyFile;
@@ -34,7 +36,6 @@ import Utilities.Triple;
 
 public class Peer {
 	/*ARGUMENTS -> MC_IP, MC_PORT, MDB_IP, MDB_PORT, MBD_IP, MDB_PORT*/
-	
 	public static Vector<Message> stored_messages;
 	public static Vector<Message> putchunk_messages;
 	public static Vector<Message> getchunk_messages;
@@ -42,21 +43,29 @@ public class Peer {
 	public static Vector<Message> delete_messages;
 	public static Vector<Message> removed_messages;
 	/*
-	 * <IP, FILEID, CHUNKNO>
-	 */
-	public static Vector<Triple<String, String, Integer>> peers;
-	/*
-	 * <<FILEID, CHUNKNO, CHUNKRD>, ACTUALRD>
-	 */
-	public static Vector<Pair<Triple<String, Integer, Integer>, Integer>> chunks;
-	
-	public static Lock mutex_stored_messages;
-	public static Lock mutex_chunk_messages;
-	/*
 	 * STRING -> PATH ; PAIR -> <FILEID, NOFCHUNKS>
 	 */
 	public static ConcurrentHashMap<String, Pair> fileList;
 	
+	public static Vector<Pair<String, ChunkInfo>> peers;
+	public static Vector<ChunkInfo> chunks;
+	/*
+	 * MUTEXES
+	 */
+	public static Lock mutex_space;
+	public static Lock mutex_stored_messages;
+	public static Lock mutex_chunk_messages;
+	public static Lock mutex_chunks;
+	/*
+	 * SPACE RECLAIMING
+	 */
+	public static long usedSpace;
+	public static long totalSpace = 200000;
+	public static long availableSpace;
+	public static boolean reclaimInProgress;
+	/*
+	 * THREADS
+	 */
 	private static Thread ltmcThread;
 	private static Thread ltmdbThread;
 	private static Thread ltmdrThread;
@@ -72,9 +81,17 @@ public class Peer {
 		setUpSocketsDefault();
 		
 		System.out.println(InetAddress.getLocalHost());
+		/*
+		 * USED SPACE STARTS AT 0, CHANGE LATER DUE TO DATABASE 
+		 */
+		usedSpace = 0;
+		availableSpace = totalSpace;
+		reclaimInProgress = false;
 		
 		mutex_stored_messages = new ReentrantLock(true);
 		mutex_chunk_messages = new ReentrantLock(true);
+		mutex_space = new ReentrantLock(true);
+		mutex_chunks = new ReentrantLock(true);
 		
 		stored_messages = new Vector<Message>();
 		putchunk_messages = new Vector<Message>();
@@ -85,9 +102,8 @@ public class Peer {
 		
 		fileList = new ConcurrentHashMap<String, Pair>();
 		
-		peers = new Vector<Triple<String, String, Integer>>();
-		chunks = new Vector<Pair<Triple<String, Integer, Integer>, Integer>>();
-		
+		peers = new Vector<Pair<String, ChunkInfo>>();
+		chunks = new Vector<ChunkInfo>();
 		
 		ListenToMC ltmc = new ListenToMC();
 		ltmcThread = new Thread(ltmc);
@@ -95,22 +111,27 @@ public class Peer {
 		
 		ListenToMDB ltmdb = new ListenToMDB();
 		ltmdbThread = new Thread(ltmdb);
-	
+		ltmdbThread.start();
+		
 		ListenToMDR ltmdr = new ListenToMDR();
 		ltmdrThread = new Thread(ltmdr);
 		ltmdrThread.start();
 		
 		BackupManager bum = new BackupManager();
 		bumThread = new Thread(bum);
+		bumThread.start();
 		
 		RestoreManager rm = new RestoreManager();
-		Thread rmThread = new Thread(rm);
+		rmThread = new Thread(rm);
+		rmThread.start();
 		
 		DeleteManager dm = new DeleteManager();
 		dmThread = new Thread(dm);
+		dmThread.start();
 		
 		SpaceReclaimingManager srm = new SpaceReclaimingManager();
 		srmThread = new Thread(srm);
+		srmThread.start();
 		
 		while(true){
 			BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
@@ -139,11 +160,6 @@ public class Peer {
 		 * 
 		 */
 		System.out.println("ACTING AS PEER - JOINING GROUP...");
-		ltmdbThread.start();
-		bumThread.start();
-		dmThread.start();
-		rmThread.start();
-		srmThread.start();
 	}
 	
 	public static void writeChunk(Message msg){
@@ -154,6 +170,10 @@ public class Peer {
 			path = restorePath + File.separator + msg.getHexFileID() + File.separator + msg.chunkNo.toString();
 		}
 		long writtenSize = FileSystem.writeByteArray(path, msg.getBody());
+		mutex_space.lock();
+		usedSpace+=writtenSize;
+		availableSpace = totalSpace + usedSpace;
+		mutex_space.unlock();
 	}
 	
 	public static int getStoredMessages(Chunk chunk){
@@ -212,25 +232,40 @@ public class Peer {
 	
 	public static void updateActualRepDegree(Message message){
 		for(int i = 0; i < chunks.size(); i++){
-			Pair<Triple<String, Integer, Integer>, Integer> chunk = chunks.elementAt(i);
+			ChunkInfo chunk = chunks.elementAt(i);
 			
-			String fileID = chunk.getfirst().getFirst();
-			Integer chunkNo = chunk.getfirst().getSecond();
-			Integer actualRD = chunk.getsecond();
+			String fileID = chunk.getFileId().toString();
+			Integer chunkNo = chunk.getChunkNo();
+			Integer actualRD = chunk.getActualRD();
 			
 			if(message.getFileID().toString().equals(fileID) && message.chunkNo == chunkNo){
-				chunk.setsecond(actualRD + 1);
-				System.out.println("UPDATED ARD OF " + fileID + " " + chunkNo + " ARD: " + chunk.getsecond());
+				chunk.setActualRD(actualRD+1);
+				System.out.println("UPDATED ARD OF " + fileID + " " + chunkNo + " ARD: " + chunk.getActualRD());
 			}
 		}
 	}
 	
 	public static void addChunk(Message message){
-		Pair<Triple<String, Integer, Integer>, Integer> newChunk = new Pair<Triple<String, Integer, Integer>, Integer>
-																	(new Triple<String, Integer, Integer>
-																		(message.getFileID().toString(), message.chunkNo, message.getReplicationDeg()), 0);
+		ChunkInfo newChunk = new ChunkInfo(message.getFileID().toString(), message.chunkNo, message.getReplicationDeg(), 0);
+		
+		mutex_chunks.lock();
 		chunks.addElement(newChunk);
+		mutex_chunks.unlock();
 		System.out.println("ADDED A NEW CHUNK " + message.getFileID().toString() + " " + message.getChunkNo());
+	}
+	
+	public static ArrayList<ChunkInfo> getChunksWithHighRD(){
+		ArrayList<ChunkInfo> list = new ArrayList<ChunkInfo>();
+		if(chunks.size() == 0)
+			return null;
+		for(int i = 0; i < chunks.size(); i++){
+			ChunkInfo chunk = chunks.elementAt(i);
+			
+			if(chunk.getExcessDegree() > 0){/*CANDIDATE FOR REMOVAL*/
+				list.add(chunk);
+			}
+		}
+		return list;
 	}
 	
 	private static void quit(){
