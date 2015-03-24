@@ -11,6 +11,7 @@ public class BackupManager implements Runnable{
 			if(!Peer.putchunk_messages.isEmpty()){
 				Message message = Peer.putchunk_messages.firstElement();
 				Peer.putchunk_messages.removeElementAt(0);
+				System.out.println("RECEIVED BACKUP REQUEST...");
 				@SuppressWarnings("unused")
 				PeerChunkBackup pcb = new PeerChunkBackup(message);
 			}	

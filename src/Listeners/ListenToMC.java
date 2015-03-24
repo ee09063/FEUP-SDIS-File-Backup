@@ -2,6 +2,7 @@ package Listeners;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.InetAddress;
 
 import Files.ChunkInfo;
 import Main.Chunk;
@@ -29,18 +30,20 @@ public class ListenToMC implements Runnable{
 			}
 			Message message = null;
 			try {
-				message = Message.fromByteArray(rp.getData());
-				Peer.mutex_stored_messages.lock();
-				if(message.type == Message.Type.STORED){
-					this.filterStoredMessage(rp, message);
-				} else if(message.type == Message.Type.GETCHUNK){
-					Peer.getchunk_messages.add(message);
-				} else if(message.type == Message.Type.DELETE){
-					Peer.delete_messages.add(message);
-				} else if(message.type == Message.Type.REMOVED){
-					Peer.removed_messages.add(message);
+				if(!rp.getAddress().equals(InetAddress.getLocalHost())){
+					message = Message.fromByteArray(rp.getData());
+					if(message.type == Message.Type.STORED){
+						Peer.mutex_stored_messages.lock();
+						this.filterStoredMessage(rp, message);
+						Peer.mutex_stored_messages.unlock();
+					} else if(message.type == Message.Type.GETCHUNK){
+						Peer.getchunk_messages.add(message);
+					} else if(message.type == Message.Type.DELETE){
+						Peer.delete_messages.add(message);
+					} else if(message.type == Message.Type.REMOVED){
+						Peer.removed_messages.add(message);
+					}
 				}
-				Peer.mutex_stored_messages.unlock();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

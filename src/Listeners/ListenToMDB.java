@@ -2,6 +2,7 @@ package Listeners;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.InetAddress;
 
 import Main.Chunk;
 import Main.Peer;
@@ -26,9 +27,11 @@ public class ListenToMDB implements Runnable{
 			}
 			Message message = null;
 			try {
-				message = Message.fromByteArray(rp.getData());
-				if(message.type == Message.Type.PUTCHUNK){
-					Peer.putchunk_messages.add(message);
+				if(!rp.getAddress().equals(InetAddress.getLocalHost())){
+					message = Message.fromByteArray(rp.getData());
+					if(message.type == Message.Type.PUTCHUNK){
+						Peer.putchunk_messages.add(message);
+					}
 				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

@@ -36,7 +36,7 @@ public class ChunkRestore{
 			this.p = p;
 			this.message = msg;
 			Random rand = new Random();
-			timer.schedule(new PeriodicTask(), rand.nextInt(10));
+			timer.schedule(new PeriodicTask(), rand.nextInt(100));
 		}
 		
 		private class PeriodicTask extends TimerTask{

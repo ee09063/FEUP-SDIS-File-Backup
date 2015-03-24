@@ -12,6 +12,5 @@ public class SpaceReclaiming {
 		 * GET ALL THE CHUNKS WITH EXTRA RD
 		 */
 		ArrayList<ChunkInfo> list = Peer.getChunksWithHighRD();
-		
 	}
 }
