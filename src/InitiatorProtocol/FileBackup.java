@@ -1,5 +1,7 @@
 package InitiatorProtocol;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import Files.MyFile;
 import Main.Chunk;
@@ -16,7 +18,13 @@ public class FileBackup {
 			throw new IllegalArgumentException("Replication Degree must be between 1 and 9");
 		
 		this.replicationDegree = replicationDegree;
-		this.file = file;		
+		this.file = file;	
+		
+		try {
+			System.out.println("PC " + InetAddress.getLocalHost() + " IS INITIATING BACKUP OF FILE " + file.getPath());
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void Send() throws IOException{

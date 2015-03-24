@@ -18,9 +18,14 @@ public class ChunkBackup {
 	
 	public ChunkBackup(Chunk chunk) throws IOException{
 		msg = Message.makePutChunk(chunk);
-		
+		/*
+		 * 
+		 */
+		Peer.addChunk(msg);
+		/*
+		 * 
+		 */
 		byte[] temp = msg.toByteArray();
-		
 		msgPacket = new DatagramPacket(temp,
 										  temp.length,
 										  Peer.mdb_saddr.getAddress(),
@@ -47,7 +52,6 @@ public class ChunkBackup {
 			@Override
 			public void run() {
 				try {
-					//System.out.println("SENDING MESSAGE");
 					Peer.mdb_socket.send(p);
 					TaskManager task = new TaskManager();
 					task.startTask(message, chunk);
@@ -78,7 +82,7 @@ public class ChunkBackup {
 	        	}else{
 	        		int numStored = Peer.getStoredMessages(chunk);
 	        		if(numStored >= chunk.replicationDeg){
-	        			System.out.println("RECEIVED CONFIRMATION OF STORED CHUNK NO " + chunk.chunkNo + " RD: " + chunk.replicationDeg);
+	        			System.out.println("RECEIVED CONFIRMATION OF STORED CHUNK NO " + chunk.chunkNo + " DRD: " + chunk.replicationDeg);
 	        			Peer.mutex_stored_messages.lock();
 	        			Peer.removeStoredMessages(chunk);
 	        			Peer.mutex_stored_messages.unlock();

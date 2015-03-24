@@ -9,7 +9,7 @@ import Main.Chunk;
 
 public class Message {
 	public enum Type{
-		PUTCHUNK, GETCHUNK, CHUNK, STORED, DELETE
+		PUTCHUNK, GETCHUNK, CHUNK, STORED, DELETE, REMOVED
 	}
 	
 	public final Type type;
@@ -168,6 +168,16 @@ public class Message {
 		 return result;
 	 }
 	 
+	 public static Message makeRemoved(FileID fileID, int chunkNo) {
+	        Message result = new Message(Type.REMOVED);
+	        
+	        result.setVersion(1, 0);
+	        result.setFileID(fileID);
+	        result.setChunkNo(chunkNo);
+
+	        return result;
+	    }
+	 
 	public static Message fromByteArray(byte[] bArray) throws IOException{
 		Message msg = null;
 		String message = new String(bArray);
@@ -221,6 +231,14 @@ public class Message {
 			msg = new Message(Message.Type.DELETE);
 			msg.setVersion(1, 0);
 			msg.setFileID(hexStringToByteArray(fileID));
+			msg.setBody(null);
+			return msg;
+		} else if(messageType.equals("REMOVED")) {
+			String chunkNo = headerParts[3];
+			msg = new Message(Message.Type.REMOVED);
+			msg.setVersion(1,0);
+			msg.setFileID(hexStringToByteArray(fileID));
+			msg.setChunkNo(Integer.parseInt(chunkNo));
 			msg.setBody(null);
 			return msg;
 		}
