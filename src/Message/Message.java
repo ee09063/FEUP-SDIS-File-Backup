@@ -1,5 +1,8 @@
 package Message;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -180,7 +183,7 @@ public class Message {
 	 
 	public static Message fromByteArray(byte[] bArray) throws IOException{
 		Message msg = null;
-		String message = new String(bArray);
+		String message = new String(bArray, "iso8859-1");
 		
 		String[] messageParts = message.split("\\r\\n\\r\\n",2);
 		String messageHeader = messageParts[0];
@@ -199,7 +202,7 @@ public class Message {
 			msg.setFileID(hexStringToByteArray(fileID));
 			msg.setChunkNo(Integer.parseInt(chunkNo));
 			msg.setReplicationDegree(Integer.parseInt(replicationDegree));
-			byte[] body = messageBody.getBytes();
+			byte[] body = messageBody.getBytes(Charset.forName("iso8859-1"));
 			msg.setBody(body);
 			return msg;
 		} else if(messageType.equals("STORED")) {
@@ -224,7 +227,7 @@ public class Message {
 			msg.setVersion(1, 0);
 			msg.setFileID(hexStringToByteArray(fileID));
 			msg.setChunkNo(Integer.parseInt(chunkNo));
-			byte[] body = messageBody.getBytes();
+			byte[] body = messageBody.getBytes(Charset.forName("iso8859-1"));
 			msg.setBody(body);
 			return msg;
 		} else if(messageType.equals("DELETE")){

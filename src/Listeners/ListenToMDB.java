@@ -20,16 +20,19 @@ public class ListenToMDB implements Runnable{
 		while(true){
 			byte[] receiveData = new byte[Chunk.CHUNK_MAX_SIZE];
 			DatagramPacket rp = new DatagramPacket(receiveData, receiveData.length);
+			byte[] finalArray = null;
 			try {
 				Peer.mdb_socket.receive(rp);
+				finalArray = new byte[rp.getLength()];
+				System.arraycopy(rp.getData(), 0, finalArray, 0, rp.getLength());	
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			Message message = null;
 			try {
-				message = Message.fromByteArray(rp.getData());
+				message = Message.fromByteArray(finalArray);
 				if(message.type == Message.Type.PUTCHUNK){
-					System.out.println("RECEIVED PUTCHUNK REQUEST...");
+					System.out.println("RECEIVED PUTCHUNK REQUEST SIZE " + message.toByteArray().length + " VS " + rp.getLength());
 					Peer.mutex_putchunk_messages.lock();
 					Peer.putchunk_messages.add(message);
 					Peer.mutex_putchunk_messages.unlock();

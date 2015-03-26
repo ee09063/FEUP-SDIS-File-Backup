@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
@@ -135,6 +136,7 @@ public class Peer {
 		srmThread.start();
 		
 		while(true){
+			System.out.println("THREAD COUNT : " + ManagementFactory.getThreadMXBean().getThreadCount() + " " + java.lang.Thread.activeCount());
 			BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
 			String command = inFromUser.readLine();
 			String parts[] = command.split(" ");
@@ -160,7 +162,7 @@ public class Peer {
 		/*
 		 * 
 		 */
-		System.out.println("ACTING AS PEER - JOINING GROUP...");
+		System.out.println("PEER MODE - JOINING GROUP...");
 	}
 	
 	public static void writeChunk(Message msg){

@@ -33,7 +33,7 @@ public class FileRestore {
     private Timer timer;
 	
     
-	public FileRestore(String filePath, String destPath) throws FileNotFoundException{
+	public FileRestore(String filePath, String destPath) throws IOException{
 		
 		File myFile = new File(filePath);
 		String absPath = myFile.getAbsolutePath();
@@ -48,7 +48,44 @@ public class FileRestore {
 		this.fileId = fileInfo.getfirst();
 		this.numChunks = fileInfo.getsecond();
 		this.destPath = destPath;
+		/*
+		 * 
+		 */
+		File dir = new File(Peer.getBackupDir() + File.separator + this.fileId.toString());
+		if(!dir.exists()){
+			throw new NoSuchFileException("Couldn't find directory '" + dir.getAbsolutePath() + "'");
+		}
 		
+		File[] chunksListing = getSortedChunks(dir);
+		
+		File file = new File("restorationTest.jpg");
+		if(!file.exists()){
+			file.createNewFile();
+		}
+		
+		try {
+			FileOutputStream output = new FileOutputStream(file);
+			byte[] chunk = new byte[Chunk.CHUNK_MAX_SIZE];
+			for(File f : chunksListing){
+				BufferedInputStream bis = new BufferedInputStream(new FileInputStream(f));
+				bis.read(chunk);
+				output.write(chunk, 0, (int)f.length());
+				bis.close();
+			}
+			output.close();
+		} catch (IOException e) {
+			if(file.exists()) file.delete();
+			throw e;
+		}
+		
+		System.out.println("File Restoration Complete");
+		
+		/*DELETE THE DIRECTORY IN RESTORE*/
+		File deleteDir = new File(Peer.getRestoreDir() + File.separator + this.fileId.toString());
+		FileSystem.deleteFile(deleteDir);
+		/*
+		 * 
+		 */
 		try {
 			Restore();
 			TaskManager task = new TaskManager();
@@ -149,7 +186,7 @@ public class FileRestore {
 	        @Override
 	        public void run(){
 	        	count++;
-	        	if(count == 3){
+	        	if(count == 5){
 	        		System.out.println("GAME OVER MAN, GAME OVER! -> FileRestore");
 	        		timer.cancel();
 	        		timer.purge();

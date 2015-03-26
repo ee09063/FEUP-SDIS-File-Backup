@@ -1,5 +1,6 @@
 package Files;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -84,7 +85,7 @@ public class MyFile {
 	}
 	
 	public byte[] getChunk(int chunkNo) throws IOException{
-		/*long chunkPos = chunkNo * Chunk.CHUNK_MAX_SIZE;
+		long chunkPos = chunkNo * Chunk.CHUNK_MAX_SIZE;
 		long arraySize = Math.min(Chunk.CHUNK_MAX_SIZE, this.fileSize - chunkPos);
 		
 		FileInputStream fis = new FileInputStream(myFile);
@@ -94,8 +95,8 @@ public class MyFile {
 		fis.skip(chunkPos);
 		fis.read(fileContent, 0, (int)arraySize);
 
-		return fileContent;*/
-		
+		return fileContent;
+		/*
 		long chunkPos = chunkNo * Chunk.CHUNK_MAX_SIZE;
 		long arraySize = Math.min(Chunk.CHUNK_MAX_SIZE, this.fileSize - chunkPos);
 		if(chunkPos > this.fileSize || raf == null){
@@ -107,10 +108,10 @@ public class MyFile {
 			raf.seek(chunkPos);
 			raf.read(result);
 		}
-		
+		*/
 		//raf.close();
 		
-		return result == null? new byte[0] : result;
+		/*return result == null? new byte[0] : result;*/
 	}
 	
 	public void open() throws FileNotFoundException{
