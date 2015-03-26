@@ -17,7 +17,7 @@ public class ListenToMDR implements Runnable{
 			e.printStackTrace();
 		}
 		while(true){
-			byte[] receiveData = new byte[Chunk.CHUNK_MAX_SIZE];
+			byte[] receiveData = new byte[64*1024];
 			DatagramPacket rp = new DatagramPacket(receiveData, receiveData.length);
 			byte[] finalArray = null;
 			try {

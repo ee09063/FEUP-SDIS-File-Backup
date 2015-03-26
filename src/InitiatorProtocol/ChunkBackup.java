@@ -27,10 +27,12 @@ public class ChunkBackup {
 		 * 
 		 */
 		byte[] temp = msg.toByteArray();
+		System.out.println(temp.length);
 		msgPacket = new DatagramPacket(temp,
 										  temp.length,
 										  Peer.mdb_saddr.getAddress(),
 										  Peer.mdb_saddr.getPort());
+		System.out.println("CREATING A PACKET SIZE IS " + msgPacket.getLength());
 		SendDelay sd = new SendDelay();
 		sd.startTask(msgPacket, chunk, msg);
 	}

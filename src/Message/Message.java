@@ -1,8 +1,5 @@
 package Message;
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -116,8 +113,9 @@ public class Message {
 			int prevLength = result.length;
 			result = Arrays.copyOf(result, prevLength + this.body.length);
 			System.arraycopy(body, 0, result, prevLength, body.length);
+			System.out.println("TO BYTE ARRAY BODY SIZE IS " + this.body.length);
 		}
-		
+
 		return result;
 	}
 	
@@ -181,13 +179,23 @@ public class Message {
 	        return result;
 	    }
 	 
-	public static Message fromByteArray(byte[] bArray) throws IOException{
+	public static Message fromByteArray(byte[] data) throws IOException{
 		Message msg = null;
-		String message = new String(bArray, "iso8859-1");
 		
-		String[] messageParts = message.split("\\r\\n\\r\\n",2);
-		String messageHeader = messageParts[0];
-		String messageBody = messageParts[1];
+		byte[] header = null;
+		byte[] body  = null;
+		
+		for(int i = 0; i < data.length; i++){
+			if(data[i] == 0xD){
+				header = new byte[i];
+				System.arraycopy(data, 0, header, 0, header.length);
+				body = new byte[data.length - (i+4)];
+				System.arraycopy(data, i+4, body, 0, body.length);
+				break;
+			}
+		}
+
+		String messageHeader = new String(header, "iso8859-1");
 		
 		String[] headerParts = messageHeader.split(" ");
 		String messageType = headerParts[0];
@@ -195,6 +203,7 @@ public class Message {
 		
 		
 		if(messageType.equals("PUTCHUNK")){
+			System.out.println("FROM BYTE ARRAY BODY SIZE " + body.length);
 			String chunkNo = headerParts[3];
 			String replicationDegree = headerParts[4];
 			msg = new Message(Message.Type.PUTCHUNK);
@@ -202,7 +211,6 @@ public class Message {
 			msg.setFileID(hexStringToByteArray(fileID));
 			msg.setChunkNo(Integer.parseInt(chunkNo));
 			msg.setReplicationDegree(Integer.parseInt(replicationDegree));
-			byte[] body = messageBody.getBytes(Charset.forName("iso8859-1"));
 			msg.setBody(body);
 			return msg;
 		} else if(messageType.equals("STORED")) {
@@ -227,7 +235,6 @@ public class Message {
 			msg.setVersion(1, 0);
 			msg.setFileID(hexStringToByteArray(fileID));
 			msg.setChunkNo(Integer.parseInt(chunkNo));
-			byte[] body = messageBody.getBytes(Charset.forName("iso8859-1"));
 			msg.setBody(body);
 			return msg;
 		} else if(messageType.equals("DELETE")){

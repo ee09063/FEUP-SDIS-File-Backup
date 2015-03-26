@@ -26,8 +26,8 @@ public class MyFile {
 	private long lastModification;
 	private long fileSize;
 	private FileID fileID;
-	//private byte[] FileContent;
-	
+	private byte[] FileContent;
+	private int sum = 0;
 	
 	private RandomAccessFile raf;
 	
@@ -38,9 +38,13 @@ public class MyFile {
 		Path p = FileSystems.getDefault().getPath(absPath);
 		
 		BasicFileAttributes fileAttr = Files.readAttributes(p, BasicFileAttributes.class);
-	
+		
 		lastModification = fileAttr.lastModifiedTime().toMillis();
 		fileSize = fileAttr.size();
+		
+		System.out.println(fileSize);
+		FileContent = new byte[(int) fileSize];
+		FileContent = Files.readAllBytes(p);
 		
 		try {
 			MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -87,7 +91,10 @@ public class MyFile {
 	public byte[] getChunk(int chunkNo) throws IOException{
 		long chunkPos = chunkNo * Chunk.CHUNK_MAX_SIZE;
 		long arraySize = Math.min(Chunk.CHUNK_MAX_SIZE, this.fileSize - chunkPos);
-		
+		byte[] array = new byte[(int) arraySize];
+		System.arraycopy(FileContent, (int)chunkPos, array, 0, array.length);
+		return array;
+		/*
 		FileInputStream fis = new FileInputStream(myFile);
 		
 		byte fileContent[] = new byte[(int) arraySize];
