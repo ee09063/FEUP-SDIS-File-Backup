@@ -67,7 +67,7 @@ public class ChunkRestore{
 	        public void run(){
 	        	count++;
 	        	if(count == 3){
-	        		System.out.println("GAME OVER MAN, GAME OVER! -> ChunkRestore");
+	        		System.err.println("RESTORE ERROR : CHUNK " + msg.chunkNo + " NOT RECEIVED.");
 	        		timer.cancel();
 	        		timer.purge();
 	        	}else{

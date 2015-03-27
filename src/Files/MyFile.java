@@ -54,14 +54,9 @@ public class MyFile {
 			Pair<FileID, Integer> pair = new Pair<FileID, Integer>(this.fileID, this.getNumberofChunks());
 			if(!Peer.fileList.containsKey(p.toString())){
 				System.out.println("ADDING FILE TO LOCAL STORAGE...");
-				System.out.println(p.toString());
+				//System.out.println(p.toString());
 				Peer.fileList.put(p.toString(), pair);
 			}
-			/**/
-			/*FileInputStream fis = new FileInputStream(myFile);
-			FileContent = new byte[(int) fileSize];
-			fis.read(FileContent, 0, (int)fileSize);
-			/**/
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -91,9 +86,11 @@ public class MyFile {
 	public byte[] getChunk(int chunkNo) throws IOException{
 		long chunkPos = chunkNo * Chunk.CHUNK_MAX_SIZE;
 		long arraySize = Math.min(Chunk.CHUNK_MAX_SIZE, this.fileSize - chunkPos);
+		
 		byte[] array = new byte[(int) arraySize];
 		System.arraycopy(FileContent, (int)chunkPos, array, 0, array.length);
 		return array;
+		
 		/*
 		FileInputStream fis = new FileInputStream(myFile);
 		
@@ -103,6 +100,7 @@ public class MyFile {
 		fis.read(fileContent, 0, (int)arraySize);
 
 		return fileContent;
+		
 		/*
 		long chunkPos = chunkNo * Chunk.CHUNK_MAX_SIZE;
 		long arraySize = Math.min(Chunk.CHUNK_MAX_SIZE, this.fileSize - chunkPos);
@@ -121,10 +119,10 @@ public class MyFile {
 		/*return result == null? new byte[0] : result;*/
 	}
 	
-	public void open() throws FileNotFoundException{
+	/*public void open() throws FileNotFoundException{
 		if(this.raf == null)
 			raf = new RandomAccessFile(this.myFile, "r");
-	}
+	}*/
 	
 	
 	

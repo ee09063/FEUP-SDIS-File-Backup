@@ -1,8 +1,8 @@
 package ProtocolManagers;
 
+import InitiatorProtocol.SpaceReclaiming;
 import Main.Peer;
 import Message.Message;
-import PeerProtocol.PeerSpaceReclaiming;
 
 public class SpaceReclaimingManager implements Runnable{
 	@Override
@@ -13,7 +13,7 @@ public class SpaceReclaimingManager implements Runnable{
 				Message message = Peer.removed_messages.firstElement();
 				Peer.removed_messages.removeElementAt(0);
 				@SuppressWarnings("unused")
-				PeerSpaceReclaiming psr = new PeerSpaceReclaiming(message);
+				SpaceReclaiming sr = new SpaceReclaiming(message);
 			}
 		}
 	}

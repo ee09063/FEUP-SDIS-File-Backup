@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
+import Files.ChunkInfo;
 import Files.FileID;
 import Main.Chunk;
 
@@ -113,7 +114,6 @@ public class Message {
 			int prevLength = result.length;
 			result = Arrays.copyOf(result, prevLength + this.body.length);
 			System.arraycopy(body, 0, result, prevLength, body.length);
-			System.out.println("TO BYTE ARRAY BODY SIZE IS " + this.body.length);
 		}
 
 		return result;
@@ -203,7 +203,6 @@ public class Message {
 		
 		
 		if(messageType.equals("PUTCHUNK")){
-			System.out.println("FROM BYTE ARRAY BODY SIZE " + body.length);
 			String chunkNo = headerParts[3];
 			String replicationDegree = headerParts[4];
 			msg = new Message(Message.Type.PUTCHUNK);
@@ -268,5 +267,15 @@ public class Message {
 	public String toString(){
 		return new String(this.toByteArray());
 	}
+	
+	 public boolean equals(Object other) {
+	    	if (other instanceof ChunkInfo) {
+	    		Message om = (Message) other;
+	    		return (this.type == om.type && this.fileID == om.fileID && this.chunkNo == om.chunkNo && this.body == om.body && this.replicationDeg == om.replicationDeg);
+	    	}
+	    	return false;
+	    }
+	
+	
 	
 }

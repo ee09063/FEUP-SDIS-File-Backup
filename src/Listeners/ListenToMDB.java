@@ -23,7 +23,6 @@ public class ListenToMDB implements Runnable{
 			byte[] finalArray = null;
 			try {
 				Peer.mdb_socket.receive(rp);
-				System.out.println("RECEIVED A PACKET SIZE IS " + rp.getLength());
 				finalArray = new byte[rp.getLength()];
 				System.arraycopy(rp.getData(), 0, finalArray, 0, rp.getLength());	
 			} catch (IOException e) {

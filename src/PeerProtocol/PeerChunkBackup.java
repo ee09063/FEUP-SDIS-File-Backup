@@ -25,7 +25,8 @@ public class PeerChunkBackup {
 		 */
 		if(msg.getBody().length > Peer.availableSpace){/*NEED TO RECLAIM SPACE*/
 			System.out.println("LIMIT REACHED. RECLAIMING SPACE...");
-			SpaceReclaiming sr = new SpaceReclaiming();
+			System.exit(0);
+			PeerSpaceReclaiming psr = new PeerSpaceReclaiming();
 		}
 		Peer.writeChunk(msg);
 		/*

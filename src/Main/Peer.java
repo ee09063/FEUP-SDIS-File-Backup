@@ -61,7 +61,7 @@ public class Peer {
 	 * SPACE RECLAIMING
 	 */
 	public static long usedSpace;
-	public static long totalSpace = 200000;
+	public static long totalSpace = 200000000;
 	public static long availableSpace;
 	public static boolean reclaimInProgress;
 	/*
@@ -169,13 +169,14 @@ public class Peer {
 		String path = null;
 		if(msg.type == Message.Type.PUTCHUNK){
 			path = backupPath + File.separator + msg.getHexFileID() + File.separator + msg.chunkNo.toString();
-		} else {/*RESTORE*/
+		} else {
 			path = restorePath + File.separator + msg.getHexFileID() + File.separator + msg.chunkNo.toString();
 		}
 		long writtenSize = FileSystem.writeByteArray(path, msg.getBody());
 		mutex_space.lock();
 		usedSpace+=writtenSize;
-		availableSpace = totalSpace + usedSpace;
+		availableSpace = totalSpace - usedSpace;
+		//System.out.println("SPACE AVAILABLE: " + availableSpace);
 		mutex_space.unlock();
 	}
 	

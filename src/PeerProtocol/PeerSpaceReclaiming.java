@@ -1,9 +1,16 @@
 package PeerProtocol;
 
-import Message.Message;
+import java.util.ArrayList;
+
+import Files.ChunkInfo;
+import Main.Peer;
 
 public class PeerSpaceReclaiming {
-	public PeerSpaceReclaiming(Message message){
-		
+	public PeerSpaceReclaiming(){
+		Peer.reclaimInProgress = true;
+		/*
+		 * GET ALL THE CHUNKS WITH EXTRA RD
+		 */
+		ArrayList<ChunkInfo> list = Peer.getChunksWithHighRD();
 	}
 }

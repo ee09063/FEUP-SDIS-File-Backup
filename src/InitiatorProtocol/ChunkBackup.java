@@ -32,7 +32,6 @@ public class ChunkBackup {
 										  temp.length,
 										  Peer.mdb_saddr.getAddress(),
 										  Peer.mdb_saddr.getPort());
-		System.out.println("CREATING A PACKET SIZE IS " + msgPacket.getLength());
 		SendDelay sd = new SendDelay();
 		sd.startTask(msgPacket, chunk, msg);
 	}
@@ -83,7 +82,7 @@ public class ChunkBackup {
 	        public void run(){
 	        	count++;
 	        	if(count == 5){
-	        		System.out.println("GAME OVER MAN, GAME OVER!");
+	        		System.err.println("BACKUP ERROR : CHUNK " + chunk.chunkNo + " NOT RECEIVED.");
 	        		timer.cancel();
 	        		timer.purge();
 	        	}else{

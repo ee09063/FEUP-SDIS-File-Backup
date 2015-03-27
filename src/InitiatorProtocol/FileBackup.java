@@ -29,7 +29,7 @@ public class FileBackup {
 	
 	public void Send() throws IOException{
 		this.numChunks = file.getNumberofChunks();
-		this.file.open();
+		//this.file.open();
 		
 		System.out.println("Number of chunks: " + this.numChunks + "  Size: " + this.file.getFileSize());
 		

@@ -20,6 +20,7 @@ public class FileSystem {
 			FileOutputStream fos = new FileOutputStream(file);
 			fos.write(data);
 			fos.close();
+			//System.out.println("JUST WROTE A FILE WITH LENGTH " + file.length());
 			return file.length();
 		} catch (IOException e){
 			e.printStackTrace();
