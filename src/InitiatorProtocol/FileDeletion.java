@@ -29,7 +29,7 @@ public class FileDeletion {
 			System.out.println("BACKUP NOT DETECTED.");
 			return;
 		} else {
-			System.out.println("REMOVING FILE FROM LOCAL STORAGE");
+			//System.out.println("REMOVING FILE FROM LOCAL STORAGE");
 			Peer.fileList.remove(p.toString());
 		}
 		

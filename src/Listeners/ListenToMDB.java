@@ -11,7 +11,6 @@ import Message.Message;
 public class ListenToMDB implements Runnable{
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
 		try {
 			Peer.mdb_socket.joinGroup(Peer.mdb_saddr.getAddress());
 		} catch (IOException e) {
@@ -32,6 +31,7 @@ public class ListenToMDB implements Runnable{
 			try {
 				message = Message.fromByteArray(finalArray);
 				if(message.type == Message.Type.PUTCHUNK){
+					System.out.println("RECEIVED A PUTCHUNK MESSAGE");
 					Peer.mutex_putchunk_messages.lock();
 					Peer.putchunk_messages.add(message);
 					Peer.mutex_putchunk_messages.unlock();

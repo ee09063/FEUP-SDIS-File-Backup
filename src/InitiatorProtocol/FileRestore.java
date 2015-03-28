@@ -56,36 +56,6 @@ public class FileRestore {
 			throw new NoSuchFileException("Couldn't find directory '" + dir.getAbsolutePath() + "'");
 		}
 		
-		File[] chunksListing = getSortedChunks(dir);
-		
-		File file = new File("restorationTest.jpg");
-		if(!file.exists()){
-			file.createNewFile();
-		}
-		
-		try {
-			FileOutputStream output = new FileOutputStream(file);
-			byte[] chunk = new byte[Chunk.CHUNK_MAX_SIZE];
-			for(File f : chunksListing){
-				BufferedInputStream bis = new BufferedInputStream(new FileInputStream(f));
-				bis.read(chunk);
-				output.write(chunk, 0, (int)f.length());
-				bis.close();
-			}
-			output.close();
-		} catch (IOException e) {
-			if(file.exists()) file.delete();
-			throw e;
-		}
-		
-		System.out.println("File Restoration Complete");
-		
-		/*DELETE THE DIRECTORY IN RESTORE*/
-		File deleteDir = new File(Peer.getRestoreDir() + File.separator + this.fileId.toString());
-		FileSystem.deleteFile(deleteDir);
-		/*
-		 * 
-		 */
 		try {
 			Restore();
 			TaskManager task = new TaskManager();
@@ -187,7 +157,7 @@ public class FileRestore {
 	        public void run(){
 	        	count++;
 	        	if(count == 5){
-	        		System.out.println("GAME OVER MAN, GAME OVER! -> FileRestore");
+	        		System.out.println("FILE RESTORATION COULD NOT BE COMPLETED DUE TO MISSING CHUNKS");
 	        		timer.cancel();
 	        		timer.purge();
 	        	}else{

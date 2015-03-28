@@ -13,7 +13,6 @@ import Utilities.Pair;
 public class ListenToMC implements Runnable{
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
 		try {
 			Peer.mc_socket.joinGroup(Peer.mc_saddr.getAddress());
 		} catch (IOException e) {

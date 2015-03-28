@@ -22,7 +22,10 @@ public class FileBackup {
 		
 		try {
 			System.out.println("PC " + InetAddress.getLocalHost() + " IS INITIATING BACKUP OF FILE " + file.getPath());
+			this.Send();
 		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}

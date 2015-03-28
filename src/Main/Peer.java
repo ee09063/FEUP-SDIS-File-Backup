@@ -136,7 +136,7 @@ public class Peer {
 		srmThread.start();
 		
 		while(true){
-			System.out.println("THREAD COUNT : " + ManagementFactory.getThreadMXBean().getThreadCount() + " " + java.lang.Thread.activeCount());
+			System.out.println("THREAD COUNT : " + java.lang.Thread.activeCount());
 			BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
 			String command = inFromUser.readLine();
 			String parts[] = command.split(" ");
@@ -144,7 +144,6 @@ public class Peer {
 				String filename = parts[1];
 				MyFile file = new MyFile(filename);
 				FileBackup fb = new FileBackup(file, 1);
-				fb.Send();
 			} else if(parts.length == 2 && parts[0].equals("RESTORE")){
 				String filename = parts[1];
 				FileRestore fr = new FileRestore(filename, "restoredFiles" + File.separator + filename);
@@ -174,21 +173,23 @@ public class Peer {
 		}
 		long writtenSize = FileSystem.writeByteArray(path, msg.getBody());
 		mutex_space.lock();
-		usedSpace+=writtenSize;
-		availableSpace = totalSpace - usedSpace;
-		//System.out.println("SPACE AVAILABLE: " + availableSpace);
+			usedSpace+=writtenSize;
 		mutex_space.unlock();
+	}
+	
+	public static long getAvailableSpace(){
+		return totalSpace - usedSpace;
 	}
 	
 	public static int getStoredMessages(Chunk chunk){
 		int count = 0;
 		mutex_stored_messages.lock();
-		for(Message m : stored_messages){
-			if(m.getFileID().toString().equals(chunk.fileID._hexFileID)
-					&& m.chunkNo == chunk.chunkNo){
-				count++;
+			for(Message m : stored_messages){
+				if(m.getFileID().toString().equals(chunk.fileID._hexFileID)
+						&& m.chunkNo == chunk.chunkNo){
+					count++;
+				}
 			}
-		}
 		mutex_stored_messages.unlock();
 		return count;
 	}
@@ -213,7 +214,6 @@ public class Peer {
 	}
 	
 	public static byte[] readChunk(FileID fileId, Integer chunkNo) throws IOException {
-		//System.out.println(getBackupDir() + File.separator + fileId.toString() + File.separator + chunkNo.toString());
         File f = new File(getBackupDir() + File.separator + fileId.toString() + File.separator + chunkNo.toString());
         if (!f.exists()) 
             throw new FileNotFoundException();
@@ -229,8 +229,11 @@ public class Peer {
 	
 	public static void removeOwnFile(String path){
 		File file = new File(path);
-		if(file.delete())
+		long fileSize = file.length();
+		if(file.delete()){
+			usedSpace-=fileSize;
 			System.out.println("DELETED " + path);
+		}
 		else System.out.println("FAILED TO DELETE FILE " + path);
 	}
 	
@@ -244,7 +247,7 @@ public class Peer {
 			
 			if(message.getFileID().toString().equals(fileID) && message.chunkNo == chunkNo){
 				chunk.setActualRD(actualRD+1);
-				System.out.println("UPDATED ARD OF " + fileID + " " + chunkNo + " ARD: " + chunk.getActualRD());
+				//System.out.println("UPDATED ARD OF " + fileID + " " + chunkNo + " ARD: " + chunk.getActualRD());
 			}
 		}
 	}
@@ -254,7 +257,6 @@ public class Peer {
 		mutex_chunks.lock();
 		chunks.addElement(newChunk);
 		mutex_chunks.unlock();
-		//System.out.println("ADDED A NEW CHUNK " + message.getFileID().toString() + " " + message.getChunkNo());
 	}
 	
 	public static ArrayList<ChunkInfo> getChunksWithHighRD(){
@@ -265,6 +267,20 @@ public class Peer {
 			ChunkInfo chunk = chunks.elementAt(i);
 			
 			if(chunk.getExcessDegree() > 0){/*CANDIDATE FOR REMOVAL*/
+				list.add(chunk);
+			}
+		}
+		return list;
+	}
+	
+	public static ArrayList<ChunkInfo> getChunksWithLowRD(){
+		ArrayList<ChunkInfo> list = new ArrayList<ChunkInfo>();
+		if(chunks.size() == 0)
+			return null;
+		for(int i = 0; i < chunks.size(); i++){
+			ChunkInfo chunk = chunks.elementAt(i);
+			
+			if(chunk.getExcessDegree() < 0){/*CANDIDATE FOR NEW BACKUP*/
 				list.add(chunk);
 			}
 		}
@@ -310,17 +326,17 @@ public class Peer {
 	
 	static void setUpSocketsDefault() throws IOException{
 		/*MULTICAST CONTROL SETUP*/
-		mc_saddr = new InetSocketAddress("239.0.0.4", 4444);
+		mc_saddr = new InetSocketAddress("239.0.0.6", 6666);
 		mc_port = mc_saddr.getPort();
 		mc_socket = new MulticastSocket(mc_saddr.getPort());
 		mc_socket.setTimeToLive(1);
 		/*MULTICAST DATA BACKUP CONTROL*/
-		mdb_saddr = new InetSocketAddress("239.0.0.3", 3333);
+		mdb_saddr = new InetSocketAddress("239.0.0.7", 7777);
 		mdb_port = mdb_saddr.getPort();
 		mdb_socket = new MulticastSocket(mdb_saddr.getPort());
 		mdb_socket.setTimeToLive(1);
 		/*MULTICAST DATA RESTORE CONTROL*/
-		mdr_saddr = new InetSocketAddress("239.0.0.5", 5555);
+		mdr_saddr = new InetSocketAddress("239.0.0.8", 8888);
 		mdr_port = mdr_saddr.getPort();
 		mdr_socket = new MulticastSocket(mdr_saddr.getPort());
 		mdr_socket.setTimeToLive(1);

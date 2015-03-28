@@ -27,7 +27,6 @@ public class ChunkBackup {
 		 * 
 		 */
 		byte[] temp = msg.toByteArray();
-		System.out.println(temp.length);
 		msgPacket = new DatagramPacket(temp,
 										  temp.length,
 										  Peer.mdb_saddr.getAddress(),
@@ -47,13 +46,14 @@ public class ChunkBackup {
 			this.chunk = chunk;
 			this.message = msg;
 			Random rand = new Random();
-			timer.schedule(new PeriodicTask(), rand.nextInt(50));
+			timer.schedule(new PeriodicTask(), rand.nextInt(401));
 		}
 		
 		private class PeriodicTask extends TimerTask{
 			@Override
 			public void run() {
 				try {
+					System.out.println("SENDING MESSAGE " + message.chunkNo);
 					Peer.mdb_socket.send(p);
 					TaskManager task = new TaskManager();
 					task.startTask(message, chunk);
@@ -88,7 +88,7 @@ public class ChunkBackup {
 	        	}else{
 	        		int numStored = Peer.getStoredMessages(chunk);
 	        		if(numStored >= chunk.replicationDeg){
-	        			System.out.println("RECEIVED CONFIRMATION OF STORED CHUNK NO " + chunk.chunkNo + " DRD: " + chunk.replicationDeg);
+	        			//System.out.println("RECEIVED CONFIRMATION OF STORED CHUNK NO " + chunk.chunkNo + " DRD: " + chunk.replicationDeg);
 	        			Peer.mutex_stored_messages.lock();
 	        			Peer.removeStoredMessages(chunk);
 	        			Peer.mutex_stored_messages.unlock();

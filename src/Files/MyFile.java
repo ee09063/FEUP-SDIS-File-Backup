@@ -27,9 +27,6 @@ public class MyFile {
 	private long fileSize;
 	private FileID fileID;
 	private byte[] FileContent;
-	private int sum = 0;
-	
-	private RandomAccessFile raf;
 	
 	public MyFile(String path) throws IOException{
 		myFile = new File(path);
@@ -42,7 +39,6 @@ public class MyFile {
 		lastModification = fileAttr.lastModifiedTime().toMillis();
 		fileSize = fileAttr.size();
 		
-		System.out.println(fileSize);
 		FileContent = new byte[(int) fileSize];
 		FileContent = Files.readAllBytes(p);
 		
@@ -53,7 +49,7 @@ public class MyFile {
 			/**/
 			Pair<FileID, Integer> pair = new Pair<FileID, Integer>(this.fileID, this.getNumberofChunks());
 			if(!Peer.fileList.containsKey(p.toString())){
-				System.out.println("ADDING FILE TO LOCAL STORAGE...");
+				//System.out.println("ADDING FILE TO LOCAL STORAGE...");
 				//System.out.println(p.toString());
 				Peer.fileList.put(p.toString(), pair);
 			}
