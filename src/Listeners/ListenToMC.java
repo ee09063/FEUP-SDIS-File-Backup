@@ -3,6 +3,7 @@ package Listeners;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import Files.ChunkInfo;
 import Main.Chunk;
@@ -24,6 +25,7 @@ public class ListenToMC implements Runnable{
 			byte[] finalArray = null;
 			try {
 				Peer.mc_socket.receive(rp);
+				System.out.println("MESSAGE");
 				finalArray = new byte[rp.getLength()];
 				System.arraycopy(rp.getData(), 0, finalArray, 0, rp.getLength());
 			} catch (IOException e) {
@@ -31,21 +33,28 @@ public class ListenToMC implements Runnable{
 			}
 			Message message = null;
 			try {
-				message = Message.fromByteArray(finalArray);
-				if(message.type == Message.Type.STORED){
-					Peer.mutex_stored_messages.lock();
-					this.filterStoredMessage(rp, message);
-					Peer.mutex_stored_messages.unlock();
-				} else if(message.type == Message.Type.GETCHUNK){
-					Peer.getchunk_messages.add(message);
-				} else if(message.type == Message.Type.DELETE){
-					Peer.delete_messages.add(message);
-				} else if(message.type == Message.Type.REMOVED){
-					Peer.removed_messages.add(message);
-				}
-			} catch (IOException e) {
+				if(!rp.getAddress().equals(InetAddress.getLocalHost())){
+					try {
+						message = Message.fromByteArray(finalArray);
+						if(message.type == Message.Type.STORED){
+							Peer.mutex_stored_messages.lock();
+							this.filterStoredMessage(rp, message);
+							Peer.mutex_stored_messages.unlock();
+						} else if(message.type == Message.Type.GETCHUNK){
+							Peer.getchunk_messages.add(message);
+						} else if(message.type == Message.Type.DELETE){
+							Peer.delete_messages.add(message);
+						} else if(message.type == Message.Type.REMOVED){
+							Peer.removed_messages.add(message);
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				} else System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}	
 		}
 	}
 	

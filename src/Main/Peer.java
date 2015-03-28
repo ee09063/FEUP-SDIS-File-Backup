@@ -326,17 +326,17 @@ public class Peer {
 	
 	static void setUpSocketsDefault() throws IOException{
 		/*MULTICAST CONTROL SETUP*/
-		mc_saddr = new InetSocketAddress("239.0.0.6", 6666);
+		mc_saddr = new InetSocketAddress("239.255.0.1", 1234);
 		mc_port = mc_saddr.getPort();
 		mc_socket = new MulticastSocket(mc_saddr.getPort());
 		mc_socket.setTimeToLive(1);
 		/*MULTICAST DATA BACKUP CONTROL*/
-		mdb_saddr = new InetSocketAddress("239.0.0.7", 7777);
+		mdb_saddr = new InetSocketAddress("239.255.0.2", 5678);
 		mdb_port = mdb_saddr.getPort();
 		mdb_socket = new MulticastSocket(mdb_saddr.getPort());
 		mdb_socket.setTimeToLive(1);
 		/*MULTICAST DATA RESTORE CONTROL*/
-		mdr_saddr = new InetSocketAddress("239.0.0.8", 8888);
+		mdr_saddr = new InetSocketAddress("239.255.0.3", 9123);
 		mdr_port = mdr_saddr.getPort();
 		mdr_socket = new MulticastSocket(mdr_saddr.getPort());
 		mdr_socket.setTimeToLive(1);

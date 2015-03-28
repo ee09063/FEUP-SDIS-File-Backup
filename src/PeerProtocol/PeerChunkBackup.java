@@ -1,6 +1,7 @@
 package PeerProtocol;
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.InetAddress;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -47,6 +48,7 @@ public class PeerChunkBackup {
 												Peer.mc_saddr.getAddress(),
 												Peer.mc_saddr.getPort());
 			try {
+				System.out.println(InetAddress.getLocalHost() + " SENDING A STORED MESSAGE");
 				Peer.mc_socket.send(storedPacket);
 				timer.cancel();
 				timer.purge();

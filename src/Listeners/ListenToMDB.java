@@ -3,6 +3,7 @@ package Listeners;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import Main.Chunk;
 import Main.Peer;
@@ -29,17 +30,24 @@ public class ListenToMDB implements Runnable{
 			}
 			Message message = null;
 			try {
-				message = Message.fromByteArray(finalArray);
-				if(message.type == Message.Type.PUTCHUNK){
-					System.out.println("RECEIVED A PUTCHUNK MESSAGE");
-					Peer.mutex_putchunk_messages.lock();
-					Peer.putchunk_messages.add(message);
-					Peer.mutex_putchunk_messages.unlock();
+				if(!rp.getAddress().equals(InetAddress.getLocalHost())){
+					try {
+						message = Message.fromByteArray(finalArray);
+						if(message.type == Message.Type.PUTCHUNK){
+							System.out.println("RECEIVED A PUTCHUNK MESSAGE");
+							Peer.mutex_putchunk_messages.lock();
+							Peer.putchunk_messages.add(message);
+							Peer.mutex_putchunk_messages.unlock();
+						}
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
-			} catch (IOException e) {
+			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}	
 		}
 	}
 }

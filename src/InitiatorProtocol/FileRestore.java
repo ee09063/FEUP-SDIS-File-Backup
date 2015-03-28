@@ -48,13 +48,6 @@ public class FileRestore {
 		this.fileId = fileInfo.getfirst();
 		this.numChunks = fileInfo.getsecond();
 		this.destPath = destPath;
-		/*
-		 * 
-		 */
-		File dir = new File(Peer.getBackupDir() + File.separator + this.fileId.toString());
-		if(!dir.exists()){
-			throw new NoSuchFileException("Couldn't find directory '" + dir.getAbsolutePath() + "'");
-		}
 		
 		try {
 			Restore();
