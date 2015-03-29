@@ -11,7 +11,6 @@ public class RestoreManager implements Runnable{
 			if(!Peer.getchunk_messages.isEmpty()){
 				Message message = Peer.getchunk_messages.firstElement();
 				Peer.getchunk_messages.removeElementAt(0);
-				@SuppressWarnings("unused")
 				PeerChunkRestore pcr = new PeerChunkRestore(message);
 			}	
 		}

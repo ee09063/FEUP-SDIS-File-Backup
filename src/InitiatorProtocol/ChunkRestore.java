@@ -36,7 +36,7 @@ public class ChunkRestore{
 			this.p = p;
 			this.message = msg;
 			Random rand = new Random();
-			timer.schedule(new PeriodicTask(), rand.nextInt(100));
+			timer.schedule(new PeriodicTask(), rand.nextInt(10));
 		}
 		
 		private class PeriodicTask extends TimerTask{
@@ -45,6 +45,7 @@ public class ChunkRestore{
 				try {
 					Peer.mc_socket.send(p);
 					TaskManager task = new TaskManager();
+					//Thread.sleep(500);
 					task.startTask(message);
 				} catch (IOException e) {
 					e.printStackTrace();

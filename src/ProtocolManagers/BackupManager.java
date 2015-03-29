@@ -13,8 +13,12 @@ public class BackupManager implements Runnable{
 				Message message = Peer.putchunk_messages.firstElement();
 				Peer.putchunk_messages.removeElementAt(0);
 				Peer.mutex_putchunk_messages.unlock();
-				@SuppressWarnings("unused")
-				PeerChunkBackup pcb = new PeerChunkBackup(message);
+				try {
+					@SuppressWarnings("unused")
+					PeerChunkBackup pcb = new PeerChunkBackup(message);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}	
 		}
 	}	

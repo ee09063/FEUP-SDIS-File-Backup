@@ -46,15 +46,7 @@ public class MyFile {
 			MessageDigest digest = MessageDigest.getInstance("SHA-256");
 			String codifier = this.absPath + this.lastModification + new Date().getTime();
 			this.setFileID(new FileID(digest.digest(codifier.getBytes(StandardCharsets.UTF_8))));
-			/**/
-			Pair<FileID, Integer> pair = new Pair<FileID, Integer>(this.fileID, this.getNumberofChunks());
-			if(!Peer.fileList.containsKey(p.toString())){
-				//System.out.println("ADDING FILE TO LOCAL STORAGE...");
-				//System.out.println(p.toString());
-				Peer.fileList.put(p.toString(), pair);
-			}
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

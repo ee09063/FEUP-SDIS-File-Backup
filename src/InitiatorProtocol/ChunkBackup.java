@@ -53,7 +53,6 @@ public class ChunkBackup {
 			@Override
 			public void run() {
 				try {
-					System.out.println("SENDING MESSAGE " + message.chunkNo);
 					Peer.mdb_socket.send(p);
 					TaskManager task = new TaskManager();
 					task.startTask(message, chunk);

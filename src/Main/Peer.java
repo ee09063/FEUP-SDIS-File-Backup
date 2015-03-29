@@ -241,7 +241,7 @@ public class Peer {
 		else System.out.println("FAILED TO DELETE FILE " + path);
 	}
 	
-	public static void updateActualRepDegree(Message message){
+	public static void updateActualRepDegree(Message message, int value){
 		for(int i = 0; i < chunks.size(); i++){
 			ChunkInfo chunk = chunks.elementAt(i);
 			
@@ -250,8 +250,8 @@ public class Peer {
 			Integer actualRD = chunk.getActualRD();
 			
 			if(message.getFileID().toString().equals(fileID) && message.chunkNo == chunkNo){
-				chunk.setActualRD(actualRD+1);
-				//System.out.println("UPDATED ARD OF " + fileID + " " + chunkNo + " ARD: " + chunk.getActualRD());
+				chunk.setActualRD(actualRD+value);
+				System.out.println("UPDATED ARD OF " + fileID + " " + chunkNo + " ARD: " + chunk.getActualRD());
 			}
 		}
 	}

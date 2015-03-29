@@ -25,7 +25,6 @@ public class ListenToMC implements Runnable{
 			byte[] finalArray = null;
 			try {
 				Peer.mc_socket.receive(rp);
-				System.out.println("MESSAGE");
 				finalArray = new byte[rp.getLength()];
 				System.arraycopy(rp.getData(), 0, finalArray, 0, rp.getLength());
 			} catch (IOException e) {
@@ -50,9 +49,8 @@ public class ListenToMC implements Runnable{
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-				} else System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+				}
 			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}	
 		}
@@ -67,9 +65,9 @@ public class ListenToMC implements Runnable{
 			Peer.peers.addElement(peer);
 			Peer.stored_messages.add(message);
 			/*
-			 * UPDATE ACTUAL REPLICATION DEGREE OF THE CHUNK
+			 * UPDATE ACTUAL REPLICATION DEGREE OF THE CHUNK UPON VALID STORE MESSAGE
 			 */
-			Peer.updateActualRepDegree(message);
+			Peer.updateActualRepDegree(message, 1);
 		}
 	}
 	

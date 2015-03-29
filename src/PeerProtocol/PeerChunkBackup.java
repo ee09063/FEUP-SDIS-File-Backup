@@ -17,17 +17,17 @@ public class PeerChunkBackup {
 	private Message msg;
 	private Timer timer;
 	
-	public PeerChunkBackup(Message msg){
+	public PeerChunkBackup(Message msg) throws InterruptedException{
 		this.msg = msg;
 		this.timer = new Timer();
 		Random rand = new Random();
 		/*
-		 * 
+		 * NEED TO RECLAIM SPACE
 		 */
-		if(msg.getBody().length > Peer.getAvailableSpace()){/*NEED TO RECLAIM SPACE*/
+		if(msg.getBody().length > Peer.getAvailableSpace()){
 			System.out.println("LIMIT REACHED. RECLAIMING SPACE...");
-			System.exit(0);
 			PeerSpaceReclaiming psr = new PeerSpaceReclaiming();
+			Thread.sleep(1000);
 		}
 		Peer.writeChunk(msg);
 		/*

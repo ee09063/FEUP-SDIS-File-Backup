@@ -28,7 +28,7 @@ public class FileRestore {
     private FileID fileId;
     private String destPath;
     private int numChunks;
-    private int timeInterval = 1000;
+    private int timeInterval = 500;
     private int count = 0;
     private Timer timer;
 	
@@ -42,7 +42,8 @@ public class FileRestore {
 		Pair<FileID, Integer> fileInfo = Peer.fileList.get(p.toString());
 		
 		if(fileInfo == null){
-			throw new FileNotFoundException();
+			//throw new FileNotFoundException();
+			System.err.println("FILE BACKUP NOT FOUND...");
 		}
 		
 		this.fileId = fileInfo.getfirst();
@@ -52,8 +53,9 @@ public class FileRestore {
 		try {
 			Restore();
 			TaskManager task = new TaskManager();
+			Thread.sleep(1000);
 			task.startTask();
-		} catch (IOException e) {
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
@@ -155,7 +157,8 @@ public class FileRestore {
 	        		timer.purge();
 	        	}else{
 	        		try {
-						if(countChunks() == numChunks){
+	        			int nc = countChunks();
+						if(nc == numChunks){
 							try {
 								restoreFile();
 								timer.cancel();
@@ -164,6 +167,7 @@ public class FileRestore {
 								e.printStackTrace();
 							}
 						}else{
+							System.out.println("LOCATED " + nc + " OUT OF " + numChunks);
 							timeInterval*=2;
 							timer.schedule(new PeriodicTask(), timeInterval);
 						}

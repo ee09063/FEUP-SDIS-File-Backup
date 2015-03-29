@@ -38,5 +38,19 @@ public class FileID {
 		return _hexFileID;
 	}
 	
+	public FileID(String hexString) {
+        String[] chars = hexString.split("(?<=\\G..)");
+        
+        if (chars.length != 32) 
+            throw new IllegalArgumentException("FileID must have 32 bytes.");
+        
+        _fileID = new byte[32];
+        
+        for (int i = 0; i < _fileID.length; ++i)
+            _fileID[i] = (byte) Short.parseShort(chars[i], 16);
+        
+        _hexFileID = hexString.toLowerCase();
+    }
+	
 	public byte[] toArray() {return _fileID;}
 }

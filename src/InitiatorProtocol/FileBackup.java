@@ -3,9 +3,11 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import Files.FileID;
 import Files.MyFile;
 import Main.Chunk;
 import Main.Peer;
+import Utilities.Pair;
 
 
 public class FileBackup {
@@ -34,6 +36,10 @@ public class FileBackup {
 		 */
 		try {
 			System.out.println("PC " + InetAddress.getLocalHost() + " IS INITIATING BACKUP OF FILE " + file.getPath());
+			Pair<FileID, Integer> pair = new Pair<FileID, Integer>(file.getFileID(), file.getNumberofChunks());
+			if(!Peer.fileList.containsKey(file.getPath())){
+				Peer.fileList.put(file.getPath(), pair);
+			}
 			this.Send();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
