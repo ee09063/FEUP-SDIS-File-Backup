@@ -150,7 +150,7 @@ public class FileRestore {
 	        public void run(){
 	        	count++;
 	        	if(count == 5){
-	        		System.out.println("FILE RESTORATION COULD NOT BE COMPLETED DUE TO MISSING CHUNKS");
+	        		System.err.println("FILE RESTORATION COULD NOT BE COMPLETED DUE TO MISSING CHUNKS");
 	        		timer.cancel();
 	        		timer.purge();
 	        	}else{

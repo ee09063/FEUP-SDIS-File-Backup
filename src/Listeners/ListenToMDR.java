@@ -30,12 +30,13 @@ public class ListenToMDR implements Runnable{
 			Message message = null;
 			try {
 				message = Message.fromByteArray(finalArray);
-				Peer.mutex_chunk_messages.lock();
 				if(message.type == Message.Type.CHUNK){
-					if(!Peer.chunk_messages.contains(message))
+					Peer.mutex_chunk_messages.lock();
+					if(!Peer.chunk_messages.contains(message)){
 						Peer.chunk_messages.add(message);
-				}
-				Peer.mutex_chunk_messages.unlock();
+					}
+					Peer.mutex_chunk_messages.unlock();
+				}	
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

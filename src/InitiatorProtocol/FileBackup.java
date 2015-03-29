@@ -5,6 +5,7 @@ import java.net.UnknownHostException;
 
 import Files.MyFile;
 import Main.Chunk;
+import Main.Peer;
 
 
 public class FileBackup {
@@ -13,13 +14,24 @@ public class FileBackup {
 	int replicationDegree;
 	MyFile file;
 	
-	public FileBackup(final MyFile file, int replicationDegree){
+	public FileBackup(final MyFile file, int replicationDegree) throws IOException, InterruptedException{
 		if(replicationDegree < 1 || replicationDegree > 9)
 			throw new IllegalArgumentException("Replication Degree must be between 1 and 9");
 		
 		this.replicationDegree = replicationDegree;
 		this.file = file;	
-		
+		/*
+		 * IF FILE WAS ALREADY BACKED UP DELETE THE EXISTING VERSION
+		 */
+		if(null != Peer.fileList.get(file.getPath())){
+			System.out.println("OLDER FILE VERSION DETECTED. DELETING BEFORE BACKUP...");
+			FileDeletion fd = new FileDeletion(file.getPath());
+			fd.sendDeleteRequest();
+			Thread.sleep(1000);
+		}
+		/*
+		 * 
+		 */
 		try {
 			System.out.println("PC " + InetAddress.getLocalHost() + " IS INITIATING BACKUP OF FILE " + file.getPath());
 			this.Send();

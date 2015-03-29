@@ -75,7 +75,7 @@ public class Peer {
 	private static Thread dmThread;
 	private static Thread srmThread;
 	
-	public static void main(String args[]) throws IOException{
+	public static void main(String args[]) throws IOException, InterruptedException{
 		/*if(args.length == 6){
 			setUpSockets(args);
 		}*/
@@ -150,6 +150,8 @@ public class Peer {
 			} else if(parts.length == 2 && parts[0].equals("DELETE")){
 				String filename = parts[1];
 				FileDeletion fd = new FileDeletion(filename);
+				fd.deleteOwnFile();
+				fd.sendDeleteRequest();
 			} else if(command.equals("QUIT")){
 				quit();
 			} else if(command.equals("PEER")){
@@ -205,8 +207,10 @@ public class Peer {
 	}
 	
 	public static Message chunkMessageExists(Message msg){
-		for(Message m : chunk_messages){
+		for(int i = 0; i < chunk_messages.size(); i++){
+			Message m = chunk_messages.elementAt(i);
 			if(m.getFileID().toString().equals(msg.getFileID().toString()) && m.getChunkNo() == msg.getChunkNo()){
+				chunk_messages.removeElementAt(i);
 				return m;
 			}
 		}

@@ -66,7 +66,7 @@ public class ChunkRestore{
 	        @Override
 	        public void run(){
 	        	count++;
-	        	if(count == 3){
+	        	if(count == 5){
 	        		System.err.println("RESTORE ERROR : CHUNK " + msg.chunkNo + " NOT RECEIVED.");
 	        		timer.cancel();
 	        		timer.purge();

@@ -13,24 +13,27 @@ import Utilities.Pair;
 
 public class FileDeletion {
 	
+	Path path;
+	
 	public FileDeletion(String filePath) throws IOException{
-		
 		File myFile = new File(filePath);
 		String absPath = myFile.getAbsolutePath();
-		Path p = FileSystems.getDefault().getPath(absPath);
-		
-		System.out.println("DELETING " + p.toString());
-		
-		Peer.removeOwnFile(p.toString());
-		
-		Pair<FileID, Integer> fileInfo = Peer.fileList.get(p.toString());
+		path = FileSystems.getDefault().getPath(absPath);
+	}
+	
+	public void deleteOwnFile(){
+		System.out.println("DELETING " + path.toString());
+		Peer.removeOwnFile(path.toString());
+	}
+	
+	public void sendDeleteRequest() throws IOException{
+		Pair<FileID, Integer> fileInfo = Peer.fileList.get(path.toString());
 		
 		if(fileInfo == null){
 			System.out.println("BACKUP NOT DETECTED.");
 			return;
 		} else {
-			//System.out.println("REMOVING FILE FROM LOCAL STORAGE");
-			Peer.fileList.remove(p.toString());
+			Peer.fileList.remove(path.toString());
 		}
 		
 		Message msg = Message.makeDelete(fileInfo.getfirst());

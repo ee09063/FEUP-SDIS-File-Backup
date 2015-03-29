@@ -42,7 +42,8 @@ public class PeerChunkRestore {
 												Peer.mdr_saddr.getAddress(),
 												Peer.mdr_saddr.getPort());
 			try {
-				Peer.mdr_socket.send(packet);
+				if(null == Peer.chunkMessageExists(chunkMessage))/*CHECKS IF RECEIVED THE CHUNK BEFORE SENDING TO AVOID FLOODING THE HOST*/
+					Peer.mdr_socket.send(packet);
 				timer.cancel();
 				timer.purge();
 			} catch (IOException e) {
