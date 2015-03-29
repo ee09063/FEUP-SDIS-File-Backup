@@ -3,6 +3,7 @@ package Listeners;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import Main.Chunk;
 import Main.Peer;
@@ -29,15 +30,17 @@ public class ListenToMDR implements Runnable{
 			}
 			Message message = null;
 			try {
-				message = Message.fromByteArray(finalArray);
-				if(message.type == Message.Type.CHUNK){
-					Peer.mutex_chunk_messages.lock();
-					if(!Peer.chunk_messages.contains(message)){
+				if(!rp.getAddress().equals(InetAddress.getLocalHost())){
+					message = Message.fromByteArray(finalArray);
+					if(message.type == Message.Type.CHUNK){
+						Peer.mutex_chunk_messages.lock();
+						//if(!Peer.chunk_messages.contains(message)){
 						Peer.chunk_messages.add(message);
-					}
-					Peer.mutex_chunk_messages.unlock();
-				}	
+						Peer.mutex_chunk_messages.unlock();
+					}	
+				}
 			} catch (IOException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

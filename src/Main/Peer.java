@@ -61,7 +61,7 @@ public class Peer {
 	 * SPACE RECLAIMING
 	 */
 	public static long usedSpace;
-	public static long totalSpace = 200000000;
+	public static long totalSpace = 1000 * 64000;
 	public static long availableSpace;
 	public static boolean reclaimInProgress;
 	/*
