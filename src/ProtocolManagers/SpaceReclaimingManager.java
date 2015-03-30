@@ -1,8 +1,9 @@
 package ProtocolManagers;
 
+import java.io.IOException;
+
 import InitiatorProtocol.SpaceReclaiming;
 import Main.Peer;
-import Message.Message;
 
 public class SpaceReclaimingManager implements Runnable{
 	@Override
@@ -10,10 +11,12 @@ public class SpaceReclaimingManager implements Runnable{
 		while(true){
 			if(!Peer.removed_messages.isEmpty()){
 				System.out.println("RECEIVED REMOVED MESSAGE...");
-				Message message = Peer.removed_messages.firstElement();
-				Peer.removed_messages.removeElementAt(0);
-				@SuppressWarnings("unused")
-				SpaceReclaiming sr = new SpaceReclaiming(message);
+				try {
+					@SuppressWarnings("unused")
+					SpaceReclaiming sr = new SpaceReclaiming(Peer.removed_messages.removeFirst());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

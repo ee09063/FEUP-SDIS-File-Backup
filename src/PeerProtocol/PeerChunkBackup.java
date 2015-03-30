@@ -29,6 +29,7 @@ public class PeerChunkBackup {
 			PeerSpaceReclaiming psr = new PeerSpaceReclaiming();
 			Thread.sleep(1000);
 		}
+		Peer.updateActualRepDegree(msg, 2);
 		Peer.writeChunk(msg);
 		/*
 		 * 

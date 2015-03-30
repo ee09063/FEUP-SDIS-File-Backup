@@ -6,7 +6,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import Files.ChunkInfo;
-import Main.Chunk;
 import Main.Peer;
 import Message.Message;
 import Utilities.Pair;
@@ -62,7 +61,7 @@ public class ListenToMC implements Runnable{
 			System.out.println("RECEIVED A DUPLICATE STORED MESSAGE FROM " + peer.getfirst() + " " + peer.getsecond().getFileId().toString() + " " + peer.getsecond().getChunkNo());
 		} else {
 			System.out.println("RECEIVED STORED MESSAGE " + peer.getfirst() + " " + peer.getsecond().getFileId().toString() + " " + peer.getsecond().getChunkNo());
-			Peer.peers.addElement(peer);
+			Peer.peers.add(peer);
 			Peer.stored_messages.add(message);
 			/*
 			 * UPDATE ACTUAL REPLICATION DEGREE OF THE CHUNK UPON VALID STORE MESSAGE
