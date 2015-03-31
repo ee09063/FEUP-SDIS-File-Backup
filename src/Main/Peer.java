@@ -36,7 +36,6 @@ import Utilities.Pair;
 
 public class Peer {
 	/*ARGUMENTS -> MC_IP, MC_PORT, MDB_IP, MDB_PORT, MBD_IP, MDB_PORT*/
-	public static LinkedList<Message> stored_messages;
 	public static LinkedList<Message> putchunk_messages;
 	public static LinkedList<Message> getchunk_messages;
 	public static LinkedList<Message> chunk_messages;
@@ -80,9 +79,6 @@ public class Peer {
 		setUpSocketsDefault();
 		
 		System.out.println(InetAddress.getLocalHost());
-		/*
-		 * USED SPACE STARTS AT 0, CHANGE LATER DUE TO DATABASE 
-		 */
 		usedSpace = 0;
 		reclaimInProgress = false;
 		
@@ -92,7 +88,6 @@ public class Peer {
 		mutex_chunks = new ReentrantLock(true);
 		mutex_putchunk_messages = new ReentrantLock(true);
 		
-		stored_messages = new LinkedList<Message>();
 		putchunk_messages = new LinkedList<Message>();
 		getchunk_messages = new LinkedList<Message>();
 		chunk_messages = new LinkedList<Message>();
@@ -171,39 +166,6 @@ public class Peer {
 	
 	public static long getAvailableSpace(){
 		return totalSpace - usedSpace;
-	}
-	
-	public static int getStoredMessages(Chunk chunk){
-		int count = 0;
-		mutex_stored_messages.lock();
-			for(Message m : stored_messages){
-				if(m.getFileID().toString().equals(chunk.fileID._hexFileID)
-						&& m.chunkNo == chunk.chunkNo){
-					count++;
-				}
-			}
-		mutex_stored_messages.unlock();
-		return count;
-	}
-	
-	/*public static void removeStoredMessages(Chunk chunk){
-		for(int i = stored_messages.size()-1; i >=0; i--){
-			Message m = stored_messages.get(i);
-			if(m.getFileID().toString().equals(chunk.fileID._hexFileID)
-					&& m.chunkNo == chunk.chunkNo){
-				stored_messages.remove(m);
-			}
-		}
-	}*/
-	
-	public static void removeStoredMessages(Chunk chunk){
-		for(int i = 0; i < stored_messages.size(); i++){
-			Message m = stored_messages.get(i);
-			if(m.getFileID().toString().equals(chunk.fileID._hexFileID)
-					&& m.chunkNo == chunk.chunkNo){
-				stored_messages.remove(m);
-			}
-		}
 	}
 	
 	public static Message chunkMessageExists(Message msg){
@@ -303,20 +265,17 @@ public class Peer {
 		return 0;
 	}
 	
+	public static int getARDOfChunk(Message message) {
+		for(int i = 0; i < chunks.size(); i++){
+			ChunkInfo chunk = chunks.get(i);	
+			if(chunk.getFileId().equals(message.getFileID().toString()) && chunk.getChunkNo() == message.getChunkNo()){/*CANDIDATE FOR REMOVAL*/
+				return chunk.getActualRD();
+			}
+		}
+		return 0;
+	}
+	
 	private static void quit(){
-		/*if(ltmcThread != null)
-			ltmcThread.interrupt();
-		if(ltmdbThread != null)
-			ltmdbThread.interrupt();
-		if(ltmdrThread != null)
-			ltmdrThread.interrupt();
-		if(bumThread != null)
-			bumThread.interrupt();
-		if(rmThread != null)
-			rmThread.interrupt();
-		if(dmThread != null)
-			dmThread.interrupt();
-			*/
 		mc_socket.close();
 		mdb_socket.close();	
 		mdr_socket.close();

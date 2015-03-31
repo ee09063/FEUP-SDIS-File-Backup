@@ -80,16 +80,12 @@ public class ChunkBackup {
 	        public void run(){
 	        	count++;
 	        	if(count == 5){
-	        		System.err.println("BACKUP ERROR : CHUNK " + chunk.chunkNo + " NOT RECEIVED.");
+	        		System.err.println("BACKUP ERROR : CHUNK " + chunk.chunkNo + " " + Peer.getARDOfChunk(msg) + " OUT OF " + chunk.replicationDeg);
 	        		timer.cancel();
 	        		timer.purge();
 	        	}else{
-	        		int numStored = Peer.getStoredMessages(chunk);
+	        		int numStored = Peer.getARDOfChunk(msg);
 	        		if(numStored >= chunk.replicationDeg){
-	        			//System.out.println("RECEIVED CONFIRMATION OF STORED CHUNK NO " + chunk.chunkNo + " DRD: " + chunk.replicationDeg);
-	        			Peer.mutex_stored_messages.lock();
-	        			Peer.removeStoredMessages(chunk);
-	        			Peer.mutex_stored_messages.unlock();
 	        			timer.cancel();
 		        		timer.purge();
 	        		}else{

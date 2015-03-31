@@ -17,7 +17,13 @@ public class BackupManager implements Runnable{
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-			}	
+			} else
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}	
 		}
 	}	
 }

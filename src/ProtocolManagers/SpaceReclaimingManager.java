@@ -16,8 +16,14 @@ public class SpaceReclaimingManager implements Runnable{
 					SpaceReclaiming sr = new SpaceReclaiming(Peer.removed_messages.removeFirst());
 				} catch (IOException e) {
 					e.printStackTrace();
+				} 
+			} else
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-			}
 		}
 	}
 }

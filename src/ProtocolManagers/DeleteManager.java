@@ -11,7 +11,13 @@ public class DeleteManager implements Runnable{
 				System.out.println("RECEIVED DELETE REQUEST...");
 				@SuppressWarnings("unused")
 				PeerFileDeletion pfd = new PeerFileDeletion(Peer.delete_messages.removeFirst());
-			}	
+			} else
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 		}
 	}	
 }
