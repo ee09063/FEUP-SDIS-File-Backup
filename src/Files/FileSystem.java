@@ -3,6 +3,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import Main.Peer;
+
 
 public class FileSystem {
 	
@@ -20,7 +22,6 @@ public class FileSystem {
 			FileOutputStream fos = new FileOutputStream(file);
 			fos.write(data);
 			fos.close();
-			//System.out.println("JUST WROTE A FILE WITH LENGTH " + file.length());
 			return file.length();
 		} catch (IOException e){
 			e.printStackTrace();
@@ -28,17 +29,20 @@ public class FileSystem {
 		}
 	}
 	
-	public static boolean deleteFile(File path) {
+	public static boolean deleteFile(File path, boolean updateSpace) {
         if (path.exists() && path.isDirectory()) {
             File[] files = path.listFiles();
             for (int i = 0; i < files.length; i++) {
                 if (files[i].isDirectory()) {
-                    deleteFile(files[i]);
+                    deleteFile(files[i], updateSpace);
                 } else {
-                    files[i].delete();
+                	if(updateSpace)
+                		Peer.usedSpace+=files[i].length();
+                	files[i].delete();
                 }
             }
         }
+        System.out.println("AVAILABLE SPACE: " + Peer.getAvailableSpace());
         return (path.delete());
     }
 }

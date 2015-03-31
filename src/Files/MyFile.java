@@ -74,7 +74,7 @@ public class MyFile {
 	public byte[] getChunk(int chunkNo) throws IOException{
 		long chunkPos = chunkNo * Chunk.CHUNK_MAX_SIZE;
 		long arraySize = Math.min(Chunk.CHUNK_MAX_SIZE, this.fileSize - chunkPos);
-		
+		System.out.println(this.fileSize);
 		byte[] array = new byte[(int) arraySize];
 		System.arraycopy(FileContent, (int)chunkPos, array, 0, array.length);
 		return array;

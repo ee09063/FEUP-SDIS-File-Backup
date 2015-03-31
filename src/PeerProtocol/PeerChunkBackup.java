@@ -6,10 +6,8 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import InitiatorProtocol.SpaceReclaiming;
 import Main.Peer;
 import Message.Message;
-import Message.Message.Type;
 
 
 public class PeerChunkBackup {
@@ -24,13 +22,18 @@ public class PeerChunkBackup {
 		/*
 		 * NEED TO RECLAIM SPACE
 		 */
-		if(msg.getBody().length > Peer.getAvailableSpace()){
+		if(msg.getBody().length > Peer.getAvailableSpace() && !Peer.reclaimInProgress){
 			System.out.println("LIMIT REACHED. RECLAIMING SPACE...");
+			@SuppressWarnings("unused")
 			PeerSpaceReclaiming psr = new PeerSpaceReclaiming();
-			Thread.sleep(1000);
 		}
-		Peer.updateActualRepDegree(msg, 2);
-		Peer.writeChunk(msg);
+		while(Peer.reclaimInProgress) Thread.sleep(10);
+		long writtenSize = Peer.writeChunk(msg); 
+		Peer.usedSpace+=writtenSize;
+		if(writtenSize > 0){/*WRITING A CHUNK THAT DOESN'T YET EXIST*/
+			Peer.addChunk(msg);
+			Peer.updateActualRepDegree(msg, 1);
+		}
 		/*
 		 * 
 		 */

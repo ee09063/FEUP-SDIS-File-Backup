@@ -29,7 +29,7 @@ public class FileBackup {
 			System.out.println("OLDER FILE VERSION DETECTED. DELETING BEFORE BACKUP...");
 			FileDeletion fd = new FileDeletion(file.getPath());
 			fd.sendDeleteRequest();
-			Thread.sleep(1000);
+			Thread.sleep(500);
 		}
 		/*
 		 * 

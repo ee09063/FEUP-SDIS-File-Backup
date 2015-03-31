@@ -11,6 +11,7 @@ import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -45,7 +46,6 @@ public class Peer {
 	 * STRING -> PATH ; PAIR -> <FILEID, NOFCHUNKS>
 	 */
 	public static ConcurrentHashMap<String, Pair<FileID, Integer>> fileList;
-	
 	public static LinkedList<Pair<String, ChunkInfo>> peers;
 	public static LinkedList<ChunkInfo> chunks;
 	/*
@@ -61,7 +61,6 @@ public class Peer {
 	 */
 	public static long usedSpace;
 	public static long totalSpace = 1000 * 64000;
-	public static long availableSpace;
 	public static boolean reclaimInProgress;
 	/*
 	 * THREADS
@@ -85,7 +84,6 @@ public class Peer {
 		 * USED SPACE STARTS AT 0, CHANGE LATER DUE TO DATABASE 
 		 */
 		usedSpace = 0;
-		availableSpace = totalSpace;
 		reclaimInProgress = false;
 		
 		mutex_stored_messages = new ReentrantLock(true);
@@ -154,15 +152,13 @@ public class Peer {
 				fd.sendDeleteRequest();
 			} else if(command.equals("QUIT")){
 				quit();
-			} else if(command.equals("PEER")){
-				System.out.println("PEER MODE - JOINING GROUP...");
 			} else {
 				System.out.println("INVALID INPUT");
 			}
 		}		
 	}
 	
-	public static void writeChunk(Message msg){
+	public static long writeChunk(Message msg){
 		String path = null;
 		if(msg.type == Message.Type.PUTCHUNK){
 			path = backupPath + File.separator + msg.getHexFileID() + File.separator + msg.chunkNo.toString();
@@ -170,9 +166,7 @@ public class Peer {
 			path = restorePath + File.separator + msg.getHexFileID() + File.separator + msg.chunkNo.toString();
 		}
 		long writtenSize = FileSystem.writeByteArray(path, msg.getBody());
-		mutex_space.lock();
-			usedSpace+=writtenSize;
-		mutex_space.unlock();
+		return writtenSize;
 	}
 	
 	public static long getAvailableSpace(){
@@ -232,10 +226,23 @@ public class Peer {
         byte[] chunk = new byte[(int)f.length()];
         
         bis.read(chunk);        
-        
         bis.close();
         return chunk;
     }
+	
+	public static byte[] getOriginalChunk(FileID fileID, Integer chunkNo) throws IOException {
+		byte[] chunk;
+		for(Entry<String, Pair<FileID, Integer>> entry : Peer.fileList.entrySet()){
+			String path = entry.getKey();
+			Pair<FileID, Integer> pair = entry.getValue();
+			if(fileID.toString().equals(pair.getfirst().toString())){
+				MyFile file = new MyFile(path);
+				chunk = file.getChunk(chunkNo-1);
+				return chunk;
+			}
+		}
+		return null;
+	}
 	
 	public static void removeOwnFile(String path){
 		File file = new File(path);
@@ -267,7 +274,8 @@ public class Peer {
 	public static void addChunk(Message message){
 		ChunkInfo newChunk = new ChunkInfo(message.getFileID().toString(), message.chunkNo, message.getReplicationDeg(), 0);	
 		mutex_chunks.lock();
-		chunks.add(newChunk);
+		if(!chunks.contains(newChunk))
+			chunks.add(newChunk);
 		mutex_chunks.unlock();
 	}
 	
@@ -283,6 +291,16 @@ public class Peer {
 			}
 		}
 		return list;
+	}
+	
+	public static int getRDOfChunk(Message message) {
+		for(int i = 0; i < chunks.size(); i++){
+			ChunkInfo chunk = chunks.get(i);	
+			if(chunk.getFileId().equals(message.getFileID().toString()) && chunk.getChunkNo() == message.getChunkNo()){/*CANDIDATE FOR REMOVAL*/
+				return chunk.getDesiredRD();
+			}
+		}
+		return 0;
 	}
 	
 	private static void quit(){
@@ -362,5 +380,7 @@ public class Peer {
 	
 	private final static String backupPath = "backup";
 	private final static String restorePath = "restore";
+
+	
 	
 }

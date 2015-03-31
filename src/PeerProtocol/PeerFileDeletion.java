@@ -13,8 +13,8 @@ public class PeerFileDeletion {
 		File file = new File(Peer.getBackupDir() + File.separator + msg.getFileID().toString());
 		String absPath = file.getAbsolutePath();
 		Path p = FileSystems.getDefault().getPath(absPath);
-		
-		FileSystem.deleteFile(file);
+
+		FileSystem.deleteFile(file, true);
 		System.out.println("DELETED BACKUP " + p.toString());
 	}
 }

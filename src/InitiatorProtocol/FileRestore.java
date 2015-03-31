@@ -3,7 +3,6 @@ package InitiatorProtocol;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -12,7 +11,6 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -20,7 +18,6 @@ import Files.FileID;
 import Files.FileSystem;
 import Main.Chunk;
 import Main.Peer;
-import Message.Message;
 import Utilities.Pair;
 
 public class FileRestore {
@@ -30,7 +27,6 @@ public class FileRestore {
     private int numChunks;
     private int timeInterval = 500;
     private int count = 0;
-    private Timer timer;
 	
     
 	public FileRestore(String filePath, String destPath) throws IOException{
@@ -137,7 +133,7 @@ public class FileRestore {
 		
 		/*DELETE THE DIRECTORY IN RESTORE*/
 		File deleteDir = new File(Peer.getRestoreDir() + File.separator + this.fileId.toString());
-		FileSystem.deleteFile(deleteDir);
+		FileSystem.deleteFile(deleteDir, false);
 	}
 	
 	public class TaskManager {

@@ -1,8 +1,12 @@
 package Database;
 
 import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Map.Entry;
+
+import Files.ChunkInfo;
+import Files.FileID;
+import Main.Peer;
+import Utilities.Pair;
 
 import com.almworks.sqlite4java.SQLiteConnection;
 import com.almworks.sqlite4java.SQLiteException;
@@ -41,10 +45,10 @@ public class Database {
             + ");                                                                                                     "
             + "                                                                                                       "
             + "CREATE TABLE Chunk (                                                                                   "
-            + "    id INTEGER NOT NULL,                                                                               "
             + "    fileId INTEGER NOT NULL,                                                                           "
             + "    chunkNo INTEGER NOT NULL,                                                                          "
             + "    replicationDegree INTEGER NOT NULL,                                                                "
+            + "    actualReplicationDegree INTEGER NOT NULL,                                                          "
             + "                                                                                                       "
             + "    CONSTRAINT chunk_PK PRIMARY KEY (id),                                                              "
             + "    CONSTRAINT fileId_chunkNo_Unique UNIQUE(fileId, chunkNo),                                          "
@@ -111,5 +115,36 @@ public class Database {
 	private void loadDatabase(SQLiteConnection db) {
 		
 	}
+	
+	private void updateDatabase(SQLiteConnection db) throws SQLiteException{
+		/*
+		 * UPDATE THE FILES
+		 */
+		for(Entry<String, Pair<FileID, Integer>> entry : Peer.fileList.entrySet()){
+			String path = entry.getKey();
+			Pair<FileID, Integer> pair = entry.getValue();
+			FileAdder.exec(db, path, pair.getfirst(), pair.getsecond());
+		}
+		/*
+		 * UPDATE THE CHUNKS
+		 */
+		for(ChunkInfo ci : Peer.chunks){
+			ChunkAdder ca = new ChunkAdder(ci.getFileId(), ci.getChunkNo(), ci.getDesiredRD(), ci.getActualRD());
+			//ca.exec(db);
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 }
