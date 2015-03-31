@@ -45,7 +45,8 @@ public class PeerChunkRestore {
 				if(null == Peer.chunkMessageExists(chunkMessage)){/*CHECKS IF RECEIVED THE CHUNK BEFORE SENDING TO AVOID FLOODING THE HOST*/
 					Peer.mdr_socket.send(packet);
 				} else {
-					System.out.println("RECEIVED CHUNK " + chunkMessage.getChunkNo() + " . WILL NOT SEND...");
+					Peer.chunk_messages.remove(chunkMessage);
+					System.out.println("RECEIVED CHUNK " + chunkMessage.getChunkNo() + ". WILL NOT SEND...");
 				}
 				timer.cancel();
 				timer.purge();

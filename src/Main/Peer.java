@@ -181,8 +181,10 @@ public class Peer {
 	
 	public static byte[] readChunk(FileID fileId, Integer chunkNo) throws IOException {
         File f = new File(getBackupDir() + File.separator + fileId.toString() + File.separator + chunkNo.toString());
-        if (!f.exists()) 
-            throw new FileNotFoundException();
+        if (!f.exists()){
+        	System.err.println("BACKUP OF THE REQUESTED CHUNK NOT FOUND.");
+        	return null;
+        }
         
         BufferedInputStream bis = new BufferedInputStream(new FileInputStream(f));
         byte[] chunk = new byte[(int)f.length()];

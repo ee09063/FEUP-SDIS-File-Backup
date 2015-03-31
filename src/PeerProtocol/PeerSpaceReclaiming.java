@@ -14,6 +14,10 @@ import Message.Message;
 
 public class PeerSpaceReclaiming {
 	public PeerSpaceReclaiming(){
+		
+	}
+	
+	public boolean reclaim(){
 		Peer.reclaimInProgress = true;
 		/*
 		 * GET ALL THE CHUNKS WITH EXTRA RD
@@ -35,9 +39,8 @@ public class PeerSpaceReclaiming {
 				e.printStackTrace();
 			}
 		}
-		/*
-		 * 
-		 */
 		Peer.reclaimInProgress = false;
+		if(list.size() == 0) return false;/*THERE IS NOTHING TO RECLAIM*/
+		else return true;
 	}
 }
