@@ -14,7 +14,9 @@ public class PeerFileDeletion {
 		String absPath = file.getAbsolutePath();
 		Path p = FileSystems.getDefault().getPath(absPath);
 
-		FileSystem.deleteFile(file, true);
-		System.out.println("DELETED BACKUP " + p.toString());
+		if(FileSystem.deleteFile(file, true)){
+			System.out.println("DELETED BACKUP " + p.toString());
+		} else 
+			System.out.println("COULD NOT DELETE BACKUP " + p.toString());
 	}
 }

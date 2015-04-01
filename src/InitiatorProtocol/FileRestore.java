@@ -14,9 +14,9 @@ import java.util.Comparator;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import Files.Chunk;
 import Files.FileID;
 import Files.FileSystem;
-import Main.Chunk;
 import Main.Peer;
 import Utilities.Pair;
 
@@ -38,8 +38,8 @@ public class FileRestore {
 		Pair<FileID, Integer> fileInfo = Peer.fileList.get(p.toString());
 		
 		if(fileInfo == null){
-			//throw new FileNotFoundException();
 			System.err.println("FILE BACKUP NOT FOUND...");
+			return;
 		}
 		
 		this.fileId = fileInfo.getfirst();
@@ -49,7 +49,7 @@ public class FileRestore {
 		try {
 			Restore();
 			TaskManager task = new TaskManager();
-			Thread.sleep(1000);
+			Thread.sleep(500);
 			task.startTask();
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
@@ -131,7 +131,7 @@ public class FileRestore {
 		
 		System.out.println("File Restoration Complete");
 		
-		/*DELETE THE DIRECTORY IN RESTORE*/
+		/*DELETE THE TEMPORARY DIRECTORY IN RESTORE*/
 		File deleteDir = new File(Peer.getRestoreDir() + File.separator + this.fileId.toString());
 		FileSystem.deleteFile(deleteDir, false);
 	}
@@ -147,7 +147,7 @@ public class FileRestore {
 	        @Override
 	        public void run(){
 	        	count++;
-	        	if(count == 6){
+	        	if(count == 5){
 	        		System.err.println("FILE RESTORATION COULD NOT BE COMPLETED DUE TO MISSING CHUNKS");
 	        		timer.cancel();
 	        		timer.purge();

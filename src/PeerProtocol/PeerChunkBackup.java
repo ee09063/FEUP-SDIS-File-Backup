@@ -20,19 +20,19 @@ public class PeerChunkBackup {
 		this.msg = msg;
 		this.timer = new Timer();
 		Random rand = new Random();
-		/*
-		 * NEED TO RECLAIM SPACE
-		 */
+		
 		if(msg.getBody().length > Peer.getAvailableSpace() && !Peer.reclaimInProgress){
 			System.out.println("LIMIT REACHED. RECLAIMING SPACE...");
 			PeerSpaceReclaiming psr = new PeerSpaceReclaiming();
 			reclaimed = psr.reclaim();
 		}
+		
 		while(Peer.reclaimInProgress) Thread.sleep(10);
-		if(reclaimed){
+		
+		if(reclaimed && msg.getBody().length > Peer.getAvailableSpace()){
 			long writtenSize = Peer.writeChunk(msg); 
 			Peer.usedSpace+=writtenSize;
-			if(writtenSize > 0){/*WRITING A CHUNK THAT DOESN'T YET EXIST*/
+			if(writtenSize > 0){
 				Peer.addChunk(msg);
 				Peer.updateActualRepDegree(msg, 1);
 			}

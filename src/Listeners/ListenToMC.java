@@ -31,13 +31,11 @@ public class ListenToMC implements Runnable{
 			}
 			Message message = null;
 			try {
-				if(!rp.getAddress().equals(InetAddress.getLocalHost())){
+				if(!rp.getAddress().equals(InetAddress.getLocalHost())){/*IGNORE MESSAGES FROM ITSELF*/
 					try {
 						message = Message.fromByteArray(finalArray);
 						if(message.type == Message.Type.STORED){
-							Peer.mutex_stored_messages.lock();
 							this.filterStoredMessage(rp, message);
-							Peer.mutex_stored_messages.unlock();
 						} else if(message.type == Message.Type.GETCHUNK){
 							Peer.getchunk_messages.add(message);
 						} else if(message.type == Message.Type.DELETE){
@@ -62,7 +60,6 @@ public class ListenToMC implements Runnable{
 		} else {
 			System.out.println("RECEIVED STORED MESSAGE " + peer.getfirst() + " " + peer.getsecond().getFileId().toString() + " " + peer.getsecond().getChunkNo());
 			Peer.peers.add(peer);
-			//Peer.stored_messages.add(message);
 			/*
 			 * UPDATE ACTUAL REPLICATION DEGREE OF THE CHUNK UPON VALID STORE MESSAGE
 			 */

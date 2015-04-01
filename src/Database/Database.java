@@ -1,150 +1,152 @@
 package Database;
 
-import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import Files.ChunkInfo;
 import Files.FileID;
+import Files.MyFile;
 import Main.Peer;
 import Utilities.Pair;
 
-import com.almworks.sqlite4java.SQLiteConnection;
-import com.almworks.sqlite4java.SQLiteException;
-import com.almworks.sqlite4java.SQLiteJob;
-import com.almworks.sqlite4java.SQLiteQueue;
-import com.almworks.sqlite4java.SQLiteStatement;
 
 public class Database {
-	private static final String _databaseCreationString  = "BEGIN TRANSACTION;                                        "
-            + "PRAGMA foreign_keys = ON;                                                                              "
-            + "                                                                                                       "
-            + "DROP TABLE IF EXISTS FileBackup;                                                                       "
-            + "DROP TABLE IF EXISTS File;                                                                             "
-            + "DROP TABLE IF EXISTS Chunk;                                                                            "
-            + "DROP TABLE IF EXISTS Ip;                                                                               "
-            + "                                                                                                       "
-            + "CREATE TABLE FileBackup (                                                                              "
-            + "    id INTEGER NOT NULL,                                                                               "
-            + "    filePath TEXT NOT NULL,                                                                            "
-            + "    fileId TEXT NOT NULL,                                                                              "
-            + "    numberChunks INTEGER NOT NULL,                                                                     "
-            + "                                                                                                       "
-            + "    CONSTRAINT FileBackup_PK PRIMARY KEY (id),                                                         "
-            + "    CONSTRAINT FileBackupId_Unique UNIQUE(fileId),                                                     "
-            + "    CONSTRAINT FileBackupPath_Unique UNIQUE(filePath),                                                 "
-            + "    CONSTRAINT FileBackupId_Size64 CHECK(length(fileId) = 64)                                          "
-            + ");                                                                                                     "
-            + "                                                                                                       "
-            + "CREATE TABLE File (                                                                                    "
-            + "    id INTEGER NOT NULL,                                                                               "
-            + "    fileId TEXT NOT NULL,                                                                              "
-            + "                                                                                                       "
-            + "    CONSTRAINT file_PK PRIMARY KEY (id),                                                               "
-            + "    CONSTRAINT fileId_Unique UNIQUE(fileId),                                                           "
-            + "    CONSTRAINT fileId_Size64 CHECK(length(fileId) = 64)                                                "
-            + ");                                                                                                     "
-            + "                                                                                                       "
-            + "CREATE TABLE Chunk (                                                                                   "
-            + "    fileId INTEGER NOT NULL,                                                                           "
-            + "    chunkNo INTEGER NOT NULL,                                                                          "
-            + "    replicationDegree INTEGER NOT NULL,                                                                "
-            + "    actualReplicationDegree INTEGER NOT NULL,                                                          "
-            + "                                                                                                       "
-            + "    CONSTRAINT chunk_PK PRIMARY KEY (id),                                                              "
-            + "    CONSTRAINT fileId_chunkNo_Unique UNIQUE(fileId, chunkNo),                                          "
-            + "    CONSTRAINT chunk_file_FK FOREIGN KEY (fileId) REFERENCES File(id) ON DELETE CASCADE                "
-            + "    CONSTRAINT chunk_replication_degree_CHECK CHECK(replicationDegree >= 0 AND replicationDegree <= 9) "
-            + ");                                                                                                     "
-            + "                                                                                                       "
-            + "CREATE TABLE Ip (                                                                                      "
-            + "    chunkId INTEGER NOT NULL,                                                                          "
-            + "    IP TEXT NOT NULL,                                                                                  "
-            + "                                                                                                       "
-            + "    CONSTRAINT Ip_PK PRIMARY KEY(chunkId, IP),                                                         "
-            + "    CONSTRAINT ip_chunk_FK FOREIGN KEY (chunkId) REFERENCES Chunk(id) ON DELETE CASCADE                "
-            + ");                                                                                                     "
-            + "                                                                                                       ";
-
-	 private SQLiteQueue queue;
-
-	public Database(String databaseFilePath) {
-        this(new File(databaseFilePath));
-    }
-
-
-	public Database(File databaseFile) {
-        try {
-
-            SQLiteConnection db = new SQLiteConnection(databaseFile.getAbsoluteFile());
-            db.open(true);
-
-            int numResults = 0;
-            SQLiteStatement testSt = null;
-            try {
-                testSt = db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='File'");
-                while (testSt.step())
-                    numResults++;
-            } finally {
-                if (testSt != null)
-                    testSt.dispose();
-            }
-
-            if (numResults > 0)
-                loadDatabase(db);
-            else
-                createDatabase(db);
-
-            db.dispose();
-            queue = new SQLiteQueue(databaseFile.getAbsoluteFile());
-            queue.start();
-
-            queue.execute(new SQLiteJob<Object>() {
-                @Override
-                protected Object job(SQLiteConnection connection) throws Throwable {
-                    connection.exec("PRAGMA foreign_keys = ON;");
-                    return null;
-                }
-            });
-        } catch (SQLiteException e) { }
-    }
-
-	private void createDatabase(SQLiteConnection db) throws SQLiteException {
-        db.exec(_databaseCreationString);
-    }
-
-	private void loadDatabase(SQLiteConnection db) {
-		
+	final static String filePath = "fileList.txt";
+	final static String chunkPath = "chunkList.txt";
+	
+	public static void loadDatabase(){
+		/*
+		 * LOAD THE FILE LIST
+		 */
+		try(BufferedReader reader = new BufferedReader(new FileReader(filePath))){
+			for(String line; (line = reader.readLine()) != null; ){
+				String[] info = line.split(Pattern.quote("|"));
+				String path = info[0].trim();
+				String fileID = info[1];
+				Integer nOfChunks = Integer.parseInt(info[2]);
+				Pair<FileID, Integer> pair = new Pair<FileID, Integer>(new FileID(fileID), nOfChunks);
+				Peer.fileList.put(path, pair);
+			}
+			reader.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		/*
+		 * LOAD THE CHUNK LIST
+		 */
+		try(BufferedReader reader = new BufferedReader(new FileReader(chunkPath))){
+			for(String line; (line = reader.readLine()) != null; ){
+				String[] info = line.split(Pattern.quote("|"));
+				String fileID = info[0].trim();
+				Integer chunkNo = Integer.parseInt(info[1]);
+				Integer drd = Integer.parseInt(info[2]);
+				Integer ard = Integer.parseInt(info[3]);
+				ChunkInfo ci = new ChunkInfo(fileID,chunkNo,drd,ard);
+				Peer.chunks.add(ci);
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
-	private void updateDatabase(SQLiteConnection db) throws SQLiteException{
+	public static void updateDatabase(){
+		/*
+		 * DELETE THE CURRENT CONTENTS
+		 */
+		PrintWriter pwFL = null;
+		try {
+			pwFL = new PrintWriter(filePath);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		pwFL.close();
+		PrintWriter pwCL = null;
+		try {
+			pwCL = new PrintWriter(chunkPath);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		pwCL.close();
 		/*
 		 * UPDATE THE FILES
 		 */
+		PrintWriter pwFLU = null;
+		try {
+			pwFLU = new PrintWriter(filePath);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
 		for(Entry<String, Pair<FileID, Integer>> entry : Peer.fileList.entrySet()){
 			String path = entry.getKey();
 			Pair<FileID, Integer> pair = entry.getValue();
-			FileAdder.exec(db, path, pair.getfirst(), pair.getsecond());
+			pwFLU.print(path + "|" + pair.getfirst().toString() + "|" + pair.getsecond());
 		}
+		pwFLU.close();
 		/*
 		 * UPDATE THE CHUNKS
 		 */
-		for(ChunkInfo ci : Peer.chunks){
-			ChunkAdder ca = new ChunkAdder(ci.getFileId(), ci.getChunkNo(), ci.getDesiredRD(), ci.getActualRD());
-			//ca.exec(db);
+		PrintWriter pwCLU = null;
+		try {
+			pwCLU = new PrintWriter(filePath);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
 		}
+		
+		for(ChunkInfo ci : Peer.chunks){
+			pwCLU.print(ci.getFileId() + "|" + ci.getChunkNo() + "|" + ci.getDesiredRD() + "|" + ci.getActualRD());
+		}
+		pwCLU.close();
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -3,9 +3,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import Files.Chunk;
 import Files.FileID;
 import Files.MyFile;
-import Main.Chunk;
 import Main.Peer;
 import Utilities.Pair;
 
@@ -16,19 +16,26 @@ public class FileBackup {
 	int replicationDegree;
 	MyFile file;
 	
-	public FileBackup(final MyFile file, int replicationDegree) throws IOException, InterruptedException{
+	public FileBackup(final MyFile file, int replicationDegree){
 		if(replicationDegree < 1 || replicationDegree > 9)
 			throw new IllegalArgumentException("Replication Degree must be between 1 and 9");
 		
 		this.replicationDegree = replicationDegree;
 		this.file = file;	
+	}
+	
+	public void backup() throws IOException, InterruptedException{
 		/*
 		 * IF FILE WAS ALREADY BACKED UP DELETE THE EXISTING VERSION
 		 */
 		if(null != Peer.fileList.get(file.getPath())){
 			System.out.println("OLDER FILE VERSION DETECTED. DELETING BEFORE BACKUP...");
 			FileDeletion fd = new FileDeletion(file.getPath());
-			fd.sendDeleteRequest();
+			try {
+				fd.sendDeleteRequest();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			Thread.sleep(500);
 		}
 		/*
@@ -50,7 +57,6 @@ public class FileBackup {
 	
 	public void Send() throws IOException{
 		this.numChunks = file.getNumberofChunks();
-		//this.file.open();
 		
 		System.out.println("Number of chunks: " + this.numChunks + "  Size: " + this.file.getFileSize());
 		

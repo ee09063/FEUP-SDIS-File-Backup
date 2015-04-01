@@ -3,9 +3,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
+import Files.Chunk;
 import Files.ChunkInfo;
 import Files.FileID;
-import Main.Chunk;
 
 
 public class Message {

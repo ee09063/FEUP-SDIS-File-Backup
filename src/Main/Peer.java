@@ -3,7 +3,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
@@ -16,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import Database.Database;
 import Files.ChunkInfo;
 import Files.FileID;
 import Files.FileSystem;
@@ -51,7 +51,6 @@ public class Peer {
 	 * MUTEXES
 	 */
 	public static Lock mutex_space;
-	public static Lock mutex_stored_messages;
 	public static Lock mutex_chunk_messages;
 	public static Lock mutex_chunks;
 	public static Lock mutex_putchunk_messages;
@@ -78,11 +77,12 @@ public class Peer {
 		}*/
 		setUpSocketsDefault();
 		
+		Database.loadDatabase();
+		
 		System.out.println(InetAddress.getLocalHost());
 		usedSpace = 0;
 		reclaimInProgress = false;
 		
-		mutex_stored_messages = new ReentrantLock(true);
 		mutex_chunk_messages = new ReentrantLock(true);
 		mutex_space = new ReentrantLock(true);
 		mutex_chunks = new ReentrantLock(true);
@@ -137,8 +137,10 @@ public class Peer {
 				String filename = parts[1];
 				MyFile file = new MyFile(filename);
 				FileBackup fb = new FileBackup(file, Integer.parseInt(parts[2]));
+				fb.backup();
 			} else if(parts.length == 2 && parts[0].equals("RESTORE")){
 				String filename = parts[1];
+				@SuppressWarnings("unused")
 				FileRestore fr = new FileRestore(filename, "restoredFiles" + File.separator + filename);
 			} else if(parts.length == 2 && parts[0].equals("DELETE")){
 				String filename = parts[1];
@@ -278,9 +280,10 @@ public class Peer {
 	}
 	
 	private static void quit(){
-		mc_socket.close();
+		Database.updateDatabase();
+		/*mc_socket.close();
 		mdb_socket.close();	
-		mdr_socket.close();
+		mdr_socket.close();*/
 		System.exit(0);
 	}
 	

@@ -2,7 +2,7 @@ package InitiatorProtocol;
 
 import java.io.IOException;
 
-import Main.Chunk;
+import Files.Chunk;
 import Main.Peer;
 import Message.Message;
 

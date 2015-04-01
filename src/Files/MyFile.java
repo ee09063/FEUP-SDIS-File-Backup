@@ -1,9 +1,6 @@
 package Files;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -11,12 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import java.util.Date;
-
-import Main.Chunk;
-import Main.Peer;
-import Utilities.Pair;
 
 
 public class MyFile {
@@ -74,10 +66,11 @@ public class MyFile {
 	public byte[] getChunk(int chunkNo) throws IOException{
 		long chunkPos = chunkNo * Chunk.CHUNK_MAX_SIZE;
 		long arraySize = Math.min(Chunk.CHUNK_MAX_SIZE, this.fileSize - chunkPos);
-		System.out.println(this.fileSize);
+		
 		byte[] array = new byte[(int) arraySize];
 		System.arraycopy(FileContent, (int)chunkPos, array, 0, array.length);
-		return array;
+		
+		return array == null? new byte[0] : array;
 		
 		/*
 		FileInputStream fis = new FileInputStream(myFile);
@@ -89,28 +82,8 @@ public class MyFile {
 
 		return fileContent;
 		
-		/*
-		long chunkPos = chunkNo * Chunk.CHUNK_MAX_SIZE;
-		long arraySize = Math.min(Chunk.CHUNK_MAX_SIZE, this.fileSize - chunkPos);
-		if(chunkPos > this.fileSize || raf == null){
-			return new byte[0];
-		}
-		
-		byte[] result = new byte[(int) arraySize];
-		synchronized(raf){
-			raf.seek(chunkPos);
-			raf.read(result);
-		}
-		*/
-		//raf.close();
-		
-		/*return result == null? new byte[0] : result;*/
+		return result == null? new byte[0] : result;*/
 	}
-	
-	/*public void open() throws FileNotFoundException{
-		if(this.raf == null)
-			raf = new RandomAccessFile(this.myFile, "r");
-	}*/
 	
 	
 	

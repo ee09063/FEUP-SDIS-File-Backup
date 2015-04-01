@@ -5,7 +5,6 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import Main.Chunk;
 import Main.Peer;
 import Message.Message;
 
@@ -40,12 +39,10 @@ public class ListenToMDB implements Runnable{
 							Peer.mutex_putchunk_messages.unlock();
 						}
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
 			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}	
 		}

@@ -1,5 +1,4 @@
-package Main;
-import Files.FileID;
+package Files;
 
 
 public class Chunk {

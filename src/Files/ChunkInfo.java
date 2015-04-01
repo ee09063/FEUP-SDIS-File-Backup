@@ -1,6 +1,5 @@
 package Files;
 
-import Utilities.Pair;
 
 public class ChunkInfo implements Comparable<ChunkInfo> {
 

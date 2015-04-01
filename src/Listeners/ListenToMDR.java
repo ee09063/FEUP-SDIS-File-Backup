@@ -3,9 +3,7 @@ package Listeners;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 
-import Main.Chunk;
 import Main.Peer;
 import Message.Message;
 
