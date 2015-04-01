@@ -60,52 +60,31 @@ public class Database {
 	
 	public static void updateDatabase(){
 		/*
-		 * DELETE THE CURRENT CONTENTS
-		 */
-		PrintWriter pwFL = null;
-		try {
-			pwFL = new PrintWriter(filePath);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		pwFL.close();
-		PrintWriter pwCL = null;
-		try {
-			pwCL = new PrintWriter(chunkPath);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		pwCL.close();
-		/*
 		 * UPDATE THE FILES
 		 */
-		PrintWriter pwFLU = null;
 		try {
-			pwFLU = new PrintWriter(filePath);
+			PrintWriter pwFLU = new PrintWriter(filePath);
+			for(Entry<String, Pair<FileID, Integer>> entry : Peer.fileList.entrySet()){
+				String path = entry.getKey();
+				Pair<FileID, Integer> pair = entry.getValue();
+				pwFLU.println(path + "|" + pair.getfirst().toString() + "|" + pair.getsecond());
+			}
+			pwFLU.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		
-		for(Entry<String, Pair<FileID, Integer>> entry : Peer.fileList.entrySet()){
-			String path = entry.getKey();
-			Pair<FileID, Integer> pair = entry.getValue();
-			pwFLU.print(path + "|" + pair.getfirst().toString() + "|" + pair.getsecond());
-		}
-		pwFLU.close();
 		/*
 		 * UPDATE THE CHUNKS
 		 */
-		PrintWriter pwCLU = null;
 		try {
-			pwCLU = new PrintWriter(filePath);
+			PrintWriter pwCLU = new PrintWriter(chunkPath);
+			for(ChunkInfo ci : Peer.chunks){
+				pwCLU.println(ci.getFileId() + "|" + ci.getChunkNo() + "|" + ci.getDesiredRD() + "|" + ci.getActualRD());
+			}
+			pwCLU.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		
-		for(ChunkInfo ci : Peer.chunks){
-			pwCLU.print(ci.getFileId() + "|" + ci.getChunkNo() + "|" + ci.getDesiredRD() + "|" + ci.getActualRD());
-		}
-		pwCLU.close();
 	}
 }
 

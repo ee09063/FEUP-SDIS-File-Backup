@@ -16,6 +16,7 @@ public class PeerFileDeletion {
 
 		if(FileSystem.deleteFile(file, true)){
 			System.out.println("DELETED BACKUP " + p.toString());
+			Peer.deleteChunks(msg.getFileID().toString());
 		} else 
 			System.out.println("COULD NOT DELETE BACKUP " + p.toString());
 	}

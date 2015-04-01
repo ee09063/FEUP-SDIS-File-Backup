@@ -77,8 +77,6 @@ public class Peer {
 		}*/
 		setUpSocketsDefault();
 		
-		Database.loadDatabase();
-		
 		System.out.println(InetAddress.getLocalHost());
 		usedSpace = 0;
 		reclaimInProgress = false;
@@ -98,6 +96,8 @@ public class Peer {
 		
 		peers = new LinkedList<Pair<String, ChunkInfo>>();
 		chunks = new LinkedList<ChunkInfo>();
+		
+		Database.loadDatabase();
 		
 		ListenToMC ltmc = new ListenToMC();
 		ltmcThread = new Thread(ltmc);
@@ -279,11 +279,15 @@ public class Peer {
 		return 0;
 	}
 	
+	public static void deleteChunks(String fileID) {
+		for(ChunkInfo ci : chunks){
+			if(ci.getFileId().equals(fileID))
+				chunks.remove(ci);
+		}
+	}
+	
 	private static void quit(){
 		Database.updateDatabase();
-		/*mc_socket.close();
-		mdb_socket.close();	
-		mdr_socket.close();*/
 		System.exit(0);
 	}
 	
@@ -344,7 +348,4 @@ public class Peer {
 	
 	private final static String backupPath = "backup";
 	private final static String restorePath = "restore";
-
-	
-	
 }

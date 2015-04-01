@@ -29,7 +29,7 @@ public class PeerChunkBackup {
 		
 		while(Peer.reclaimInProgress) Thread.sleep(10);
 		
-		if(reclaimed && msg.getBody().length > Peer.getAvailableSpace()){
+		if(reclaimed && !(msg.getBody().length > Peer.getAvailableSpace())){
 			long writtenSize = Peer.writeChunk(msg); 
 			Peer.usedSpace+=writtenSize;
 			if(writtenSize > 0){

@@ -33,6 +33,7 @@ public class FileDeletion {
 			System.out.println("BACKUP NOT DETECTED.");
 			return;
 		} else {
+			Peer.deleteChunks(fileInfo.getfirst().toString());
 			Peer.fileList.remove(path.toString());
 		}
 		
