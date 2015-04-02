@@ -37,11 +37,11 @@ import Utilities.Pair;
 
 public class Peer {
 	/*ARGUMENTS -> MC_IP, MC_PORT, MDB_IP, MDB_PORT, MBD_IP, MDB_PORT*/
-	public static LinkedList<Message> putchunk_messages;
-	public static LinkedList<Message> getchunk_messages;
-	public static LinkedList<Message> chunk_messages;
-	public static LinkedList<Message> delete_messages;
-	public static LinkedList<Message> removed_messages;
+	public static final LinkedList<Message> putchunk_messages = new LinkedList<Message>();
+	public static final LinkedList<Message> getchunk_messages = new LinkedList<Message>();
+	public static final LinkedList<Message> chunk_messages = new LinkedList<Message>();
+	public static final LinkedList<Message> delete_messages = new LinkedList<Message>();
+	public static final LinkedList<Message> removed_messages = new LinkedList<Message>();
 	/*
 	 * STRING -> PATH ; PAIR -> <FILEID, NOFCHUNKS>
 	 */
@@ -51,10 +51,12 @@ public class Peer {
 	/*
 	 * MUTEXES
 	 */
+	/*
 	public static Lock mutex_space;
 	public static Lock mutex_chunk_messages;
 	public static Lock mutex_chunks;
 	public static Lock mutex_putchunk_messages;
+	*/
 	/*
 	 * SPACE RECLAIMING
 	 */
@@ -81,18 +83,12 @@ public class Peer {
 		System.out.println(InetAddress.getLocalHost());
 		usedSpace = 0;
 		reclaimInProgress = false;
-		
+		/*
 		mutex_chunk_messages = new ReentrantLock(true);
 		mutex_space = new ReentrantLock(true);
 		mutex_chunks = new ReentrantLock(true);
 		mutex_putchunk_messages = new ReentrantLock(true);
-		
-		putchunk_messages = new LinkedList<Message>();
-		getchunk_messages = new LinkedList<Message>();
-		chunk_messages = new LinkedList<Message>();
-		delete_messages = new LinkedList<Message>();
-		removed_messages = new LinkedList<Message>();
-		
+		*/
 		fileList = new ConcurrentHashMap<String, Pair<FileID, Integer>>();
 		
 		peers = new LinkedList<Pair<String, ChunkInfo>>();
@@ -139,7 +135,7 @@ public class Peer {
 				MyFile file = new MyFile(filename);
 				FileBackup fb = new FileBackup(file, Integer.parseInt(parts[2]));
 				fb.backup();
-			} else if(parts.length == 2 && parts[0].equals("backup")){
+			} else if(parts.length == 2 && parts[0].equals("restore")){
 				String filename = parts[1];
 				@SuppressWarnings("unused")
 				FileRestore fr = new FileRestore(filename, "restoredFiles" + File.separator + filename);
@@ -178,7 +174,9 @@ public class Peer {
 		for(int i = 0; i < chunk_messages.size(); i++){
 			Message m = chunk_messages.get(i);
 			if(m.getFileID().toString().equals(msg.getFileID().toString()) && m.getChunkNo() == msg.getChunkNo()){
-				chunk_messages.remove(i);
+				synchronized(chunk_messages){
+					chunk_messages.remove(i);
+				}
 				return m;
 			}
 		}
@@ -243,10 +241,10 @@ public class Peer {
 	
 	public static void addChunk(Message message){
 		ChunkInfo newChunk = new ChunkInfo(message.getFileID().toString(), message.chunkNo, message.getReplicationDeg(), 0);	
-		mutex_chunks.lock();
-		if(!chunks.contains(newChunk))
-			chunks.add(newChunk);
-		mutex_chunks.unlock();
+		synchronized(chunks){
+			if(!chunks.contains(newChunk))
+				chunks.add(newChunk);
+		}
 	}
 	
 	public static ArrayList<ChunkInfo> getChunksWithHighRD(){
@@ -255,7 +253,6 @@ public class Peer {
 			return null;
 		for(int i = 0; i < chunks.size(); i++){
 			ChunkInfo chunk = chunks.get(i);
-			
 			if(chunk.getExcessDegree() > 0){/*CANDIDATE FOR REMOVAL*/
 				list.add(chunk);
 			}
@@ -286,7 +283,9 @@ public class Peer {
 	public static void deleteChunks(String fileID) {
 		for(ChunkInfo ci : chunks){
 			if(ci.getFileId().equals(fileID))
-				chunks.remove(ci);
+				synchronized(chunks){
+					chunks.remove(ci);
+				}
 		}
 	}
 	

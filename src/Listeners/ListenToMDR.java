@@ -32,10 +32,11 @@ public class ListenToMDR implements Runnable{
 					message = Message.fromByteArray(finalArray);
 					if(message.type == Message.Type.CHUNK){
 						System.out.println("RECEIVED A CHUNK");
-						Peer.mutex_chunk_messages.lock();
-						if(!Peer.chunk_messages.contains(message))
-							Peer.chunk_messages.add(message);
-						Peer.mutex_chunk_messages.unlock();
+						synchronized(Peer.chunk_messages){
+							if(!Peer.chunk_messages.contains(message)){
+								Peer.chunk_messages.add(message);
+							}
+						}
 					}	
 				}
 			} catch (IOException e) {

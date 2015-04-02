@@ -34,9 +34,9 @@ public class ListenToMDB implements Runnable{
 						message = Message.fromByteArray(finalArray);
 						if(message.type == Message.Type.PUTCHUNK){
 							System.out.println("RECEIVED A PUTCHUNK MESSAGE");
-							Peer.mutex_putchunk_messages.lock();
-							Peer.putchunk_messages.add(message);
-							Peer.mutex_putchunk_messages.unlock();
+							synchronized(Peer.putchunk_messages){
+								Peer.putchunk_messages.add(message);
+							}
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
