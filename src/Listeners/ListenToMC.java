@@ -31,24 +31,23 @@ public class ListenToMC implements Runnable{
 			}
 			Message message = null;
 			try {
-				if(!rp.getAddress().equals(InetAddress.getLocalHost())){/*IGNORE MESSAGES FROM ITSELF*/
-					try {
-						message = Message.fromByteArray(finalArray);
-						if(message.type == Message.Type.STORED){
-							this.filterStoredMessage(rp, message);
-						} else if(message.type == Message.Type.GETCHUNK){
-							Peer.getchunk_messages.add(message);
-						} else if(message.type == Message.Type.DELETE){
-							Peer.delete_messages.add(message);
-						} else if(message.type == Message.Type.REMOVED){
-							Peer.removed_messages.add(message);
-						}
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+				message = Message.fromByteArray(finalArray);
+				
+				if(message.type == Message.Type.STORED){
+					this.filterStoredMessage(rp, message);
+				} else if(message.type == Message.Type.REMOVED){
+					Peer.removed_messages.add(message);
+				} else if(!rp.getAddress().equals(InetAddress.getLocalHost())){/*IGNORE MESSAGES FROM ITSELF*/
+					if(message.type == Message.Type.GETCHUNK){
+						Peer.getchunk_messages.add(message);
+					} else if(message.type == Message.Type.DELETE){
+						Peer.delete_messages.add(message);
+					} 
 				}
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
+			} catch (IOException e1) {
+				e1.printStackTrace();
 			}	
 		}
 	}
