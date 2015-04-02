@@ -14,13 +14,13 @@ public class PeerChunkBackup {
 	
 	private Message msg;
 	private Timer timer;
-	private boolean reclaimed = true;
+	//private boolean reclaimed = true;
 	
 	public PeerChunkBackup(Message msg) throws InterruptedException{
 		this.msg = msg;
 		this.timer = new Timer();
 		Random rand = new Random();
-		
+		/*
 		if(msg.getBody().length > Peer.getAvailableSpace() && !Peer.reclaimInProgress){
 			System.out.println("LIMIT REACHED. RECLAIMING SPACE...");
 			PeerSpaceReclaiming psr = new PeerSpaceReclaiming();
@@ -28,8 +28,8 @@ public class PeerChunkBackup {
 		}
 		
 		while(Peer.reclaimInProgress) Thread.sleep(10);
-		
-		if(reclaimed && !(msg.getBody().length > Peer.getAvailableSpace())){
+		*/
+		if(!(msg.getBody().length > Peer.getAvailableSpace())){
 			long writtenSize = Peer.writeChunk(msg); 
 			Peer.usedSpace+=writtenSize;
 			if(writtenSize > 0){

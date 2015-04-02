@@ -27,6 +27,7 @@ import Listeners.ListenToMC;
 import Listeners.ListenToMDB;
 import Listeners.ListenToMDR;
 import Message.Message;
+import PeerProtocol.PeerSpaceReclaiming;
 import ProtocolManagers.BackupManager;
 import ProtocolManagers.DeleteManager;
 import ProtocolManagers.RestoreManager;
@@ -72,9 +73,9 @@ public class Peer {
 	private static Thread srmThread;
 	
 	public static void main(String args[]) throws IOException, InterruptedException{
-		/*if(args.length == 6){
+		if(args.length == 6){
 			setUpSockets(args);
-		}*/
+		}
 		setUpSocketsDefault();
 		
 		System.out.println(InetAddress.getLocalHost());
@@ -133,21 +134,24 @@ public class Peer {
 			String command = inFromUser.readLine();
 			String parts[] = command.split(" ");
 			
-			if(parts.length == 3 && parts[0].equals("BACKUP")){
+			if(parts.length == 3 && parts[0].equals("backup")){
 				String filename = parts[1];
 				MyFile file = new MyFile(filename);
 				FileBackup fb = new FileBackup(file, Integer.parseInt(parts[2]));
 				fb.backup();
-			} else if(parts.length == 2 && parts[0].equals("RESTORE")){
+			} else if(parts.length == 2 && parts[0].equals("backup")){
 				String filename = parts[1];
 				@SuppressWarnings("unused")
 				FileRestore fr = new FileRestore(filename, "restoredFiles" + File.separator + filename);
-			} else if(parts.length == 2 && parts[0].equals("DELETE")){
+			} else if(parts.length == 2 && parts[0].equals("delete")){
 				String filename = parts[1];
 				FileDeletion fd = new FileDeletion(filename);
 				fd.deleteOwnFile();
 				fd.sendDeleteRequest();
-			} else if(command.equals("QUIT")){
+			} else if(parts.length == 1 && parts[0].equals("reclaim")){
+				PeerSpaceReclaiming psr = new PeerSpaceReclaiming();
+				psr.reclaim();
+			} else if(command.equals("quit")){
 				quit();
 			} else {
 				System.out.println("INVALID INPUT");
