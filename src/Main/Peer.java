@@ -27,7 +27,6 @@ import Listeners.ListenToMC;
 import Listeners.ListenToMDB;
 import Listeners.ListenToMDR;
 import Message.Message;
-import PeerProtocol.PeerSpaceReclaiming;
 import ProtocolManagers.BackupManager;
 import ProtocolManagers.DeleteManager;
 import ProtocolManagers.RestoreManager;
@@ -129,31 +128,29 @@ public class Peer {
 		srmThread.start();
 		
 		while(true){
+			//System.out.println("THREAD COUNT : " + java.lang.Thread.activeCount());	
 			BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
 			String command = inFromUser.readLine();
 			String parts[] = command.split(" ");
 			
-			if(parts.length == 3 && parts[0].equals("backup")){
+			if(parts.length == 3 && parts[0].equals("BACKUP")){
 				String filename = parts[1];
 				MyFile file = new MyFile(filename);
 				FileBackup fb = new FileBackup(file, Integer.parseInt(parts[2]));
 				fb.backup();
-			} else if(parts.length == 2 && parts[0].equals("restore")){
+			} else if(parts.length == 2 && parts[0].equals("RESTORE")){
 				String filename = parts[1];
 				@SuppressWarnings("unused")
 				FileRestore fr = new FileRestore(filename, "restoredFiles" + File.separator + filename);
-			} else if(parts.length == 2 && parts[0].equals("delete")){
+			} else if(parts.length == 2 && parts[0].equals("DELETE")){
 				String filename = parts[1];
 				FileDeletion fd = new FileDeletion(filename);
 				fd.deleteOwnFile();
 				fd.sendDeleteRequest();
-			} else if(parts.length == 1 && parts[0].equals("reclaim")){
-				PeerSpaceReclaiming psr = new PeerSpaceReclaiming();
-				psr.reclaim();
-			} else if(command.equals("quit")){
+			} else if(command.equals("QUIT")){
 				quit();
 			} else {
-				System.err.println("INVALID INPUT");
+				System.out.println("INVALID INPUT");
 			}
 		}		
 	}
