@@ -72,7 +72,9 @@ public class ChunkRestore{
 	        		timer.cancel();
 	        		timer.purge();
 	        	}else{
+	        		Peer.mutex_chunk_messages.lock();
 	        		Message m = Peer.chunkMessageExists(msg);
+	        		Peer.mutex_chunk_messages.unlock();
 	        		if(m != null){
 	        			Peer.writeChunk(m);
 	        			timer.cancel();

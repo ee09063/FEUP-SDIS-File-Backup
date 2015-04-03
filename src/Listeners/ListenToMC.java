@@ -37,17 +37,11 @@ public class ListenToMC implements Runnable{
 						if(message.type == Message.Type.STORED){
 							this.filterStoredMessage(rp, message);
 						} else if(message.type == Message.Type.GETCHUNK){
-							synchronized(Peer.getchunk_messages){
-								Peer.getchunk_messages.add(message);
-							}
+							Peer.getchunk_messages.add(message);
 						} else if(message.type == Message.Type.DELETE){
-							synchronized(Peer.delete_messages){
-								Peer.delete_messages.add(message);
-							}
+							Peer.delete_messages.add(message);
 						} else if(message.type == Message.Type.REMOVED){
-							synchronized(Peer.removed_messages){
-								Peer.removed_messages.add(message);
-							}
+							Peer.removed_messages.add(message);
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -65,9 +59,7 @@ public class ListenToMC implements Runnable{
 			System.out.println("RECEIVED A DUPLICATE STORED MESSAGE FROM " + peer.getfirst() + " " + peer.getsecond().getFileId().toString() + " " + peer.getsecond().getChunkNo());
 		} else {
 			System.out.println("RECEIVED STORED MESSAGE " + peer.getfirst() + " " + peer.getsecond().getFileId().toString() + " " + peer.getsecond().getChunkNo());
-			synchronized(Peer.peers){
-				Peer.peers.add(peer);
-			}
+			Peer.peers.add(peer);
 			/*
 			 * UPDATE ACTUAL REPLICATION DEGREE OF THE CHUNK UPON VALID STORE MESSAGE
 			 */
