@@ -129,9 +129,8 @@ public class FileRestore {
 			throw e;
 		}
 		
-		System.out.println("File Restoration Complete");
+		System.out.println("FILE RESTORATION COMPLETE -> " + this.destPath);
 		
-		/*DELETE THE TEMPORARY DIRECTORY IN RESTORE*/
 		File deleteDir = new File(Peer.getRestoreDir() + File.separator + this.fileId.toString());
 		FileSystem.deleteFile(deleteDir, false);
 	}

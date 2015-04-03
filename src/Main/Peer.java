@@ -11,6 +11,7 @@ import java.net.MulticastSocket;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -32,6 +33,7 @@ import ProtocolManagers.BackupManager;
 import ProtocolManagers.DeleteManager;
 import ProtocolManagers.RestoreManager;
 import ProtocolManagers.SpaceReclaimingManager;
+import Utilities.LoadProperties;
 import Utilities.Pair;
 
 
@@ -71,12 +73,23 @@ public class Peer {
 	private static Thread rmThread;
 	private static Thread dmThread;
 	private static Thread srmThread;
+	/*
+	 * 
+	 */
+	private static String backupPath;
+	private static String restorePath;
+	private static String restoredFilesPath;
 	
 	public static void main(String args[]) throws IOException, InterruptedException{
+		
+		LoadProperties lp = new LoadProperties();
+		loadProperties(lp.prop);
+		
 		if(args.length == 6){
 			setUpSockets(args);
 		}
-		setUpSocketsDefault();
+		
+		//setUpSocketsDefault();
 		
 		System.out.println(InetAddress.getLocalHost());
 		usedSpace = 0;
@@ -141,7 +154,7 @@ public class Peer {
 			} else if(parts.length == 2 && parts[0].equals("restore")){
 				String filename = parts[1];
 				@SuppressWarnings("unused")
-				FileRestore fr = new FileRestore(filename, "restoredFiles" + File.separator + filename);
+				FileRestore fr = new FileRestore(filename, restoredFilesPath + File.separator + filename);
 			} else if(parts.length == 2 && parts[0].equals("delete")){
 				String filename = parts[1];
 				FileDeletion fd = new FileDeletion(filename);
@@ -294,6 +307,32 @@ public class Peer {
 		System.exit(0);
 	}
 	
+	public static void loadProperties(Properties prop) throws IOException{
+		backupPath = prop.getProperty("backup_path");
+		restorePath = prop.getProperty("restore_path");
+		restoredFilesPath = prop.getProperty("fileRestore_path");
+		
+		setUpSockets(prop);
+	}
+	
+	static void setUpSockets(Properties prop) throws IOException{
+		/*MULTICAST CONTROL SETUP*/
+		mc_saddr = new InetSocketAddress(prop.getProperty("mc_ip"), Integer.parseInt(prop.getProperty("mc_port")));
+		mc_port = mc_saddr.getPort();
+		mc_socket = new MulticastSocket(mc_saddr.getPort());
+		mc_socket.setTimeToLive(1);
+		/*MULTICAST DATA BACKUP CONTROL*/
+		mdb_saddr = new InetSocketAddress(prop.getProperty("mdb_ip"), Integer.parseInt(prop.getProperty("mdb_port")));
+		mdb_port = mdb_saddr.getPort();
+		mdb_socket = new MulticastSocket(mdb_saddr.getPort());
+		mdb_socket.setTimeToLive(1);
+		/*MULTICAST DATA RESTORE CONTROL*/
+		mdr_saddr = new InetSocketAddress(prop.getProperty("mdr_ip"), Integer.parseInt(prop.getProperty("mdr_port")));
+		mdr_port = mdr_saddr.getPort();
+		mdr_socket = new MulticastSocket(mdr_saddr.getPort());
+		mdr_socket.setTimeToLive(1);
+	}
+	
 	static void setUpSockets(String args[]) throws IOException{
 		/*MULTICAST CONTROL SETUP*/
 		mc_saddr = new InetSocketAddress(args[0], Integer.parseInt(args[1]));
@@ -348,7 +387,4 @@ public class Peer {
 	public static int mdr_port;
 	public static String mdr_addr;
 	public static InetSocketAddress mdr_saddr;
-	
-	private final static String backupPath = "backup";
-	private final static String restorePath = "restore";
 }
