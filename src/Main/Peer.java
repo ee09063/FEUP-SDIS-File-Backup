@@ -129,7 +129,6 @@ public class Peer {
 		srmThread.start();
 		
 		while(true){
-			//System.out.println("THREAD COUNT : " + java.lang.Thread.activeCount());	
 			BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
 			String command = inFromUser.readLine();
 			String parts[] = command.split(" ");
@@ -139,7 +138,7 @@ public class Peer {
 				MyFile file = new MyFile(filename);
 				FileBackup fb = new FileBackup(file, Integer.parseInt(parts[2]));
 				fb.backup();
-			} else if(parts.length == 2 && parts[0].equals("backup")){
+			} else if(parts.length == 2 && parts[0].equals("restore")){
 				String filename = parts[1];
 				@SuppressWarnings("unused")
 				FileRestore fr = new FileRestore(filename, "restoredFiles" + File.separator + filename);
@@ -315,17 +314,17 @@ public class Peer {
 	
 	static void setUpSocketsDefault() throws IOException{
 		/*MULTICAST CONTROL SETUP*/
-		mc_saddr = new InetSocketAddress("239.255.0.1", 1234);
+		mc_saddr = new InetSocketAddress("239.255.0.4", 4555);
 		mc_port = mc_saddr.getPort();
 		mc_socket = new MulticastSocket(mc_saddr.getPort());
 		mc_socket.setTimeToLive(1);
 		/*MULTICAST DATA BACKUP CONTROL*/
-		mdb_saddr = new InetSocketAddress("239.255.0.2", 5678);
+		mdb_saddr = new InetSocketAddress("239.255.0.5", 4556);
 		mdb_port = mdb_saddr.getPort();
 		mdb_socket = new MulticastSocket(mdb_saddr.getPort());
 		mdb_socket.setTimeToLive(1);
 		/*MULTICAST DATA RESTORE CONTROL*/
-		mdr_saddr = new InetSocketAddress("239.255.0.3", 9123);
+		mdr_saddr = new InetSocketAddress("239.255.0.6", 4557);
 		mdr_port = mdr_saddr.getPort();
 		mdr_socket = new MulticastSocket(mdr_saddr.getPort());
 		mdr_socket.setTimeToLive(1);
