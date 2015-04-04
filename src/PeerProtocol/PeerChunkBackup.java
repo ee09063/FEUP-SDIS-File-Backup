@@ -14,7 +14,6 @@ public class PeerChunkBackup {
 	
 	private Message msg;
 	private Timer timer;
-	//private boolean reclaimed = true;
 	
 	public PeerChunkBackup(Message msg) throws InterruptedException{
 		this.msg = msg;

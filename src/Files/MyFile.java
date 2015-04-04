@@ -71,18 +71,6 @@ public class MyFile {
 		System.arraycopy(FileContent, (int)chunkPos, array, 0, array.length);
 		
 		return array == null? new byte[0] : array;
-		
-		/*
-		FileInputStream fis = new FileInputStream(myFile);
-		
-		byte fileContent[] = new byte[(int) arraySize];
-		
-		fis.skip(chunkPos);
-		fis.read(fileContent, 0, (int)arraySize);
-
-		return fileContent;
-		
-		return result == null? new byte[0] : result;*/
 	}
 	
 	

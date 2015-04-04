@@ -56,9 +56,9 @@ public class ListenToMC implements Runnable{
 	private void filterStoredMessage(DatagramPacket rp, Message message){
 		Pair<String, ChunkInfo> peer = new Pair<String, ChunkInfo>(rp.getAddress().toString(), new ChunkInfo(message.getFileID().toString(), message.chunkNo, 0, 0));
 		if(Peer.peers.contains(peer)){
-			System.out.println("RECEIVED A DUPLICATE STORED MESSAGE FROM " + peer.getfirst() + " " + peer.getsecond().getFileId().toString() + " " + peer.getsecond().getChunkNo());
+			System.out.println("RECEIVED A DUPLICATE STORED MESSAGE FROM " + peer.getFirst() + " " + peer.getSecond().getFileId().toString() + " " + peer.getSecond().getChunkNo());
 		} else {
-			System.out.println("RECEIVED STORED MESSAGE " + peer.getfirst() + " " + peer.getsecond().getFileId().toString() + " " + peer.getsecond().getChunkNo());
+			System.out.println("RECEIVED STORED MESSAGE " + peer.getFirst() + " " + peer.getSecond().getFileId().toString() + " " + peer.getSecond().getChunkNo());
 			Peer.peers.add(peer);
 			/*
 			 * UPDATE ACTUAL REPLICATION DEGREE OF THE CHUNK UPON VALID STORE MESSAGE

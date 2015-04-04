@@ -1,7 +1,7 @@
 package Files;
 
 
-public class ChunkInfo implements Comparable<ChunkInfo> {
+public class ChunkInfo{
 
     private Integer chunkNo;
     private String fileID;
@@ -27,11 +27,6 @@ public class ChunkInfo implements Comparable<ChunkInfo> {
         return chunkNo;
     }
 
-    @Override
-    public int compareTo(ChunkInfo arg0) {
-        return arg0.getExcessDegree() - getExcessDegree();
-    }
-
     public Integer getDesiredRD() {
         return desiredRD;
     }
@@ -44,6 +39,7 @@ public class ChunkInfo implements Comparable<ChunkInfo> {
     	this.actualRD = i;
     }
     
+    @Override
     public boolean equals(Object other) {
     	if (other instanceof ChunkInfo) {
     		ChunkInfo otherChunk = (ChunkInfo) other;

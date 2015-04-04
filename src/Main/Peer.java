@@ -3,7 +3,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -191,6 +190,7 @@ public class Peer {
 	}
 	
 	public static Message chunkMessageExists(Message msg){
+		@SuppressWarnings("unchecked")
 		LinkedList<Message> new_chunk_messages = (LinkedList<Message>) chunk_messages.clone();
 		for(int i = 0; i < new_chunk_messages.size(); i++){
 			Message m = new_chunk_messages.get(i);
@@ -222,7 +222,7 @@ public class Peer {
 		for(Entry<String, Pair<FileID, Integer>> entry : Peer.fileList.entrySet()){
 			String path = entry.getKey();
 			Pair<FileID, Integer> pair = entry.getValue();
-			if(fileID.toString().equals(pair.getfirst().toString())){
+			if(fileID.toString().equals(pair.getFirst().toString())){
 				MyFile file = new MyFile(path);
 				chunk = file.getChunk(chunkNo-1);
 				return chunk;
@@ -232,9 +232,10 @@ public class Peer {
 	}
 	
 	public static void removePeer(String peerIP, Message message){
+		@SuppressWarnings("unchecked")
 		LinkedList<Pair<String, ChunkInfo>> new_peers = (LinkedList<Pair<String, ChunkInfo>>) peers.clone();
 		for(Pair<String, ChunkInfo> pair : new_peers){
-			if(pair.getfirst().equals(peerIP) && pair.getsecond().getFileId().equals(message.getFileID().toString()) && pair.getsecond().getChunkNo() == message.getChunkNo()){
+			if(pair.getFirst().equals(peerIP) && pair.getSecond().getFileId().equals(message.getFileID().toString()) && pair.getSecond().getChunkNo() == message.getChunkNo()){
 				peers.remove(pair);
 			}
 		}
@@ -242,11 +243,10 @@ public class Peer {
 	
 	public static void removeOwnFile(String path){
 		File file = new File(path);
-		//long fileSize = file.length();
 		if(file.delete()){
 			System.out.println("DELETED " + path);
 		}
-		else System.out.println("FAILED TO DELETE FILE " + path);
+		else System.err.println("FAILED TO DELETE FILE " + path);
 	}
 	
 	public static int updateActualRepDegree(Message message, int value){
@@ -401,25 +401,7 @@ public class Peer {
 		mdr_socket = new MulticastSocket(mdr_saddr.getPort());
 		mdr_socket.setTimeToLive(1);	
 	}
-	
-	static void setUpSocketsDefault() throws IOException{
-		/*MULTICAST CONTROL SETUP*/
-		mc_saddr = new InetSocketAddress("239.255.0.4", 4555);
-		mc_port = mc_saddr.getPort();
-		mc_socket = new MulticastSocket(mc_saddr.getPort());
-		mc_socket.setTimeToLive(1);
-		/*MULTICAST DATA BACKUP CONTROL*/
-		mdb_saddr = new InetSocketAddress("239.255.0.5", 4556);
-		mdb_port = mdb_saddr.getPort();
-		mdb_socket = new MulticastSocket(mdb_saddr.getPort());
-		mdb_socket.setTimeToLive(1);
-		/*MULTICAST DATA RESTORE CONTROL*/
-		mdr_saddr = new InetSocketAddress("239.255.0.6", 4557);
-		mdr_port = mdr_saddr.getPort();
-		mdr_socket = new MulticastSocket(mdr_saddr.getPort());
-		mdr_socket.setTimeToLive(1);
-	}
-	
+
 	public static String getBackupDir(){return backupPath;}
 	public static String getRestoreDir(){return restorePath;}
 	

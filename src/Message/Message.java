@@ -14,13 +14,16 @@ public class Message {
 	}
 	
 	public final Type type;
+	private FileID fileID = null;
+	private byte[] version = null;
+	public Integer chunkNo = null;
+	private Byte replicationDeg = null;
+	private byte[] body = null;
 	
 	public Message(Type type){
 		this.type=type;
 	}
-	
-	private FileID fileID = null;
-	
+
 	protected void setFileID(byte[] fileID){
 		this.fileID = new FileID(fileID); 
 	}
@@ -33,8 +36,6 @@ public class Message {
 		return this.fileID.toString();
 	}
 	
-	private byte[] version = null;
-	
 	public void setVersion(int i, int j){
 		if(version == null){
 			version = new byte[2];
@@ -46,13 +47,7 @@ public class Message {
 	public int[] getVersion() {
 		return new int[]{(int) version[0], (int) version[1]};
 	}
-	
-	public Integer chunkNo = null;
-	
-	private Byte replicationDeg = null;
-	
-	private byte[] body = null;
-	
+
 	public FileID getFileID(){
 		return this.fileID;
 	}
@@ -170,14 +165,14 @@ public class Message {
 	 }
 	 
 	 public static Message makeRemoved(FileID fileID, int chunkNo) {
-	        Message result = new Message(Type.REMOVED);
-	        
-	        result.setVersion(1, 0);
-	        result.setFileID(fileID);
-	        result.setChunkNo(chunkNo);
+        Message result = new Message(Type.REMOVED);
+        
+        result.setVersion(1, 0);
+        result.setFileID(fileID);
+        result.setChunkNo(chunkNo);
 
-	        return result;
-	    }
+        return result;
+	 }
 	 
 	public static Message fromByteArray(byte[] data) throws IOException{
 		Message msg = null;

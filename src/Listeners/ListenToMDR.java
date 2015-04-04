@@ -31,7 +31,6 @@ public class ListenToMDR implements Runnable{
 				if(!rp.getAddress().equals(InetAddress.getLocalHost())){
 					message = Message.fromByteArray(finalArray);
 					if(message.type == Message.Type.CHUNK){
-						//System.out.println("RECEIVED A CHUNK");
 						Peer.mutex_chunk_messages.lock();
 						if(!Peer.chunk_messages.contains(message))
 							Peer.chunk_messages.add(message);

@@ -26,19 +26,19 @@ public class Pair<A, B> {
            return "(" + first + ", " + second + ")"; 
     }
 
-    public A getfirst() {
+    public A getFirst() {
     	return first;
     }
 
-    public void setfirst(A first) {
+    public void setFirst(A first) {
     	this.first = first;
     }
 
-    public B getsecond() {
+    public B getSecond() {
     	return second;
     }
 
-    public void setsecond(B second) {
+    public void setSecond(B second) {
     	this.second = second;
     }
 }

@@ -18,13 +18,9 @@ public class ChunkBackup {
 	
 	public ChunkBackup(Chunk chunk) throws IOException{
 		msg = Message.makePutChunk(chunk);
-		/*
-		 * 
-		 */
+	
 		Peer.addChunk(msg);
-		/*
-		 * 
-		 */
+		
 		byte[] temp = msg.toByteArray();
 		msgPacket = new DatagramPacket(temp,
 										  temp.length,

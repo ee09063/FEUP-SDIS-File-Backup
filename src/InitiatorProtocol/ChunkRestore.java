@@ -45,7 +45,6 @@ public class ChunkRestore{
 				try {
 					Peer.mc_socket.send(p);
 					TaskManager task = new TaskManager();
-					//Thread.sleep(500);
 					task.startTask(message);
 				} catch (IOException e) {
 					e.printStackTrace();

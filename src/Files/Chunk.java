@@ -1,6 +1,5 @@
 package Files;
 
-
 public class Chunk {
 	public static final int CHUNK_MAX_SIZE = 64000;
 	
@@ -10,21 +9,34 @@ public class Chunk {
 	public final byte[] data;
 	
 	public Chunk(int cn, int rd, FileID fileID, byte[] data){
-		if(cn < 0 || cn > 999999) throw new IllegalArgumentException("ERROR: Chunk number outside allowed values");
+		if(cn < 0 || cn > 999999){
+			System.err.println("CHUNK NUMBER OUTSIDE LIMITS -> " + cn);
+			System.exit(0);
+		}
 		this.chunkNo = cn;
-		if(rd < 1 || rd > 9) throw new IllegalArgumentException("ERROR: Replication Degree of Chunk outside allowed Values");
+		if(rd < 1 || rd > 9){
+			System.err.println("CHUNK REPLICATION DEGREE OUTSIDE LIMITS -> " + rd);
+			System.exit(0);
+		}
 		this.replicationDeg = rd;
 		this.fileID = fileID;
-		if(data.length > CHUNK_MAX_SIZE) throw new IllegalArgumentException("ERROR: Data larger than CHUNK_MAX_SIZE -> " + data.length);
+		if(data.length > CHUNK_MAX_SIZE){
+			System.err.println("CHUNK SIZE OUTSIDE LIMITS -> " + data.length);
+		}
 		this.data = data;
 	}
 	
-	public Chunk(int cn, FileID fid, byte[] data){
-		if (cn < 0 || cn > 999999) throw new IllegalArgumentException();
+	public Chunk(int cn, FileID fileID, byte[] data){
+		if(cn < 0 || cn > 999999){
+			System.err.println("CHUNK NUMBER OUTSIDE LIMITS -> " + cn);
+			System.exit(0);
+		}
         chunkNo = cn;
         replicationDeg = null;    
-        fileID = fid;
-        if (data.length > 64000) throw new IllegalArgumentException();
+        this.fileID = fileID;
+        if(data.length > CHUNK_MAX_SIZE){
+			System.err.println("CHUNK SIZE OUTSIDE LIMITS -> " + data.length);
+		}
         this.data = data;
 	}
 }

@@ -9,8 +9,8 @@ import Utilities.Pair;
 
 public class SpaceReclaiming {
 	public SpaceReclaiming(Pair<String, Message> pair) throws IOException{
-		Message message = pair.getsecond();
-		String ip = pair.getfirst();
+		Message message = pair.getSecond();
+		String ip = pair.getFirst();
 		int dif = Peer.updateActualRepDegree(message, -1);
 		/*
 		 * REMOVE PEER BECAUSE OF DUPLICATED MESSAGES

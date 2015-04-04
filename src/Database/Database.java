@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 
 import Files.ChunkInfo;
 import Files.FileID;
-import Files.MyFile;
 import Main.Peer;
 import Utilities.Pair;
 
@@ -67,7 +66,7 @@ public class Database {
 			for(Entry<String, Pair<FileID, Integer>> entry : Peer.fileList.entrySet()){
 				String path = entry.getKey();
 				Pair<FileID, Integer> pair = entry.getValue();
-				pwFLU.println(path + "|" + pair.getfirst().toString() + "|" + pair.getsecond());
+				pwFLU.println(path + "|" + pair.getFirst().toString() + "|" + pair.getSecond());
 			}
 			pwFLU.close();
 		} catch (FileNotFoundException e) {

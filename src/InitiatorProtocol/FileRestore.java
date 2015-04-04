@@ -42,8 +42,8 @@ public class FileRestore {
 			return;
 		}
 		
-		this.fileId = fileInfo.getfirst();
-		this.numChunks = fileInfo.getsecond();
+		this.fileId = fileInfo.getFirst();
+		this.numChunks = fileInfo.getSecond();
 		this.destPath = destPath;
 		
 		try {

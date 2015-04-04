@@ -33,11 +33,11 @@ public class FileDeletion {
 			System.out.println("BACKUP NOT DETECTED.");
 			return;
 		} else {
-			Peer.deleteChunks(fileInfo.getfirst().toString());
+			Peer.deleteChunks(fileInfo.getFirst().toString());
 			Peer.fileList.remove(path.toString());
 		}
 		
-		Message msg = Message.makeDelete(fileInfo.getfirst());
+		Message msg = Message.makeDelete(fileInfo.getFirst());
 		DatagramPacket packet = new DatagramPacket(msg.toByteArray(),
 													msg.toByteArray().length,
 													Peer.mc_saddr.getAddress(),
