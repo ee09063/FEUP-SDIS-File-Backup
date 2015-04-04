@@ -3,6 +3,8 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
@@ -58,10 +60,10 @@ public class Peer {
 	public static Lock mutex_chunks;
 	public static Lock mutex_putchunk_messages;
 	/*
-	 * SPACE RECLAIMING
+	 * SPACE
 	 */
 	public static long usedSpace;
-	public static long totalSpace = 1000 * 64000;
+	public static long totalSpace;
 	public static boolean reclaimInProgress;
 	/*
 	 * THREADS
@@ -74,11 +76,15 @@ public class Peer {
 	private static Thread dmThread;
 	private static Thread srmThread;
 	/*
-	 * 
+	 * PATHS
 	 */
 	private static String backupPath;
 	private static String restorePath;
 	private static String restoredFilesPath;
+	/*
+	 * PROPERTIES
+	 */
+	private static Properties properties;
 	
 	public static void main(String args[]) throws IOException, InterruptedException{
 		
@@ -89,10 +95,8 @@ public class Peer {
 			setUpSockets(args);
 		}
 		
-		//setUpSocketsDefault();
-		
 		System.out.println(InetAddress.getLocalHost());
-		usedSpace = 0;
+		System.out.println("TOTAL SPACE: " + totalSpace + " | " + "AVAILABLE SPACE: " + getAvailableSpace());
 		reclaimInProgress = false;
 		
 		mutex_chunk_messages = new ReentrantLock(true);
@@ -302,15 +306,49 @@ public class Peer {
 		}
 	}
 	
-	private static void quit(){
+	private static void quit() throws IOException{
+		FileOutputStream fos = new FileOutputStream("config.properties");
+		
+		properties.setProperty("usedValue", Long.toString(usedSpace));
+		properties.store(fos, null);
+		fos.close();
+		
 		Database.updateDatabase();
 		System.exit(0);
 	}
 	
 	public static void loadProperties(Properties prop) throws IOException{
+		properties = prop;
+		
 		backupPath = prop.getProperty("backup_path");
+		File backupDir = new File(backupPath);
+		if(!backupDir.exists()){
+			boolean sucess_backup = new File(backupPath).mkdir();
+			if(!sucess_backup){
+				System.err.println("FAILED TO CREATE BACKUP DIRECTORY");
+			}
+		}
+		
 		restorePath = prop.getProperty("restore_path");
+		File restoreDir = new File(restorePath);
+		if(!restoreDir.exists()){
+			boolean sucess_restore = new File(restorePath).mkdir();
+			if(!sucess_restore){
+				System.err.println("FAILED TO CREATE RESTORE DIRECTORY");
+			}
+		}
+		
 		restoredFilesPath = prop.getProperty("fileRestore_path");
+		File restoredFilesDir = new File(restoredFilesPath);
+		if(!restoredFilesDir.exists()){
+			boolean sucess_restoredFiles = new File(restoredFilesPath).mkdir();
+			if(!sucess_restoredFiles){
+				System.err.println("FAILED TO CREATE RESTORED FILES DIRECTORY");
+			}
+		}
+		
+		totalSpace = Integer.parseInt(prop.getProperty("totalSpace"));
+		usedSpace = Integer.parseInt(prop.getProperty("usedSpace"));
 		
 		setUpSockets(prop);
 	}
