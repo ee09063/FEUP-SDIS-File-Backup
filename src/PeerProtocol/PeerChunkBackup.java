@@ -26,7 +26,7 @@ public class PeerChunkBackup {
 			Peer.usedSpace+=writtenSize;
 			if(writtenSize > 0){
 				Peer.addChunk(msg);
-				Peer.updateActualRepDegree(msg, 2);
+				Peer.updateActualRepDegree(msg, 1);
 			}
 			this.timer.schedule(new Task(), rand.nextInt(401));
 		}
