@@ -37,12 +37,11 @@ public class FileSystem {
                     deleteFile(files[i], updateSpace);
                 } else {
                 	if(updateSpace)
-                		Peer.usedSpace+=files[i].length();
+                		Peer.usedSpace-=files[i].length();
                 	files[i].delete();
                 }
             }
         }
-        System.out.println("AVAILABLE SPACE: " + Peer.getAvailableSpace());
         return (path.delete());
     }
 }

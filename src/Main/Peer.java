@@ -45,7 +45,7 @@ public class Peer {
 	public static LinkedList<Message> getchunk_messages;
 	public static LinkedList<Message> chunk_messages;
 	public static LinkedList<Message> delete_messages;
-	public static LinkedList<Message> removed_messages;
+	public static LinkedList<Pair<String, Message>> removed_messages;
 	/*
 	 * STRING -> PATH ; PAIR -> <FILEID, NOFCHUNKS>
 	 */
@@ -108,7 +108,7 @@ public class Peer {
 		getchunk_messages = new LinkedList<Message>();
 		chunk_messages = new LinkedList<Message>();
 		delete_messages = new LinkedList<Message>();
-		removed_messages = new LinkedList<Message>();
+		removed_messages = new LinkedList<Pair<String,Message>>();
 		
 		fileList = new ConcurrentHashMap<String, Pair<FileID, Integer>>();
 		
@@ -230,11 +230,18 @@ public class Peer {
 		return null;
 	}
 	
+	public static void removePeer(String peerIP, Message message){
+		for(Pair<String, ChunkInfo> pair : Peer.peers){
+			if(pair.getfirst().equals(peerIP) && pair.getsecond().getFileId().equals(message.getFileID().toString()) && pair.getsecond().getChunkNo() == message.getChunkNo()){
+				peers.remove(pair);
+			}
+		}
+	}
+	
 	public static void removeOwnFile(String path){
 		File file = new File(path);
-		long fileSize = file.length();
+		//long fileSize = file.length();
 		if(file.delete()){
-			usedSpace-=fileSize;
 			System.out.println("DELETED " + path);
 		}
 		else System.out.println("FAILED TO DELETE FILE " + path);
@@ -309,7 +316,7 @@ public class Peer {
 	private static void quit() throws IOException{
 		FileOutputStream fos = new FileOutputStream("config.properties");
 		
-		properties.setProperty("usedValue", Long.toString(usedSpace));
+		properties.setProperty("usedSpace", Long.toString(usedSpace));
 		properties.store(fos, null);
 		fos.close();
 		

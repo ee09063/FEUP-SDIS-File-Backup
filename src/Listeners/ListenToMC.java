@@ -41,7 +41,7 @@ public class ListenToMC implements Runnable{
 						} else if(message.type == Message.Type.DELETE){
 							Peer.delete_messages.add(message);
 						} else if(message.type == Message.Type.REMOVED){
-							Peer.removed_messages.add(message);
+							Peer.removed_messages.add(new Pair<String, Message>(rp.getAddress().toString(), message));
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
