@@ -18,8 +18,6 @@ public class PeerSpaceReclaiming {
 	}
 	
 	public void reclaim(){
-		Peer.reclaimInProgress = true;
-		
 		ArrayList<ChunkInfo> list = Peer.getChunksWithHighRD();
 		
 		if(list != null){
@@ -47,6 +45,5 @@ public class PeerSpaceReclaiming {
 		else{
 			System.err.println("THERE ARE NO CHUNKS WITH HIGH REPLICATION DEGREE");
 		}
-		Peer.reclaimInProgress = false;
 	}
 }

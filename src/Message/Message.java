@@ -24,58 +24,6 @@ public class Message {
 		this.type=type;
 	}
 
-	protected void setFileID(byte[] fileID){
-		this.fileID = new FileID(fileID); 
-	}
-	
-	public void setFileID(FileID fileID){
-		this.fileID = fileID;
-	}
-	
-	public String getHexFileID(){
-		return this.fileID.toString();
-	}
-	
-	public void setVersion(int i, int j){
-		if(version == null){
-			version = new byte[2];
-		}
-		version[0] = (byte)i;
-		version[1] = (byte)j;
-	}
-	
-	public int[] getVersion() {
-		return new int[]{(int) version[0], (int) version[1]};
-	}
-
-	public FileID getFileID(){
-		return this.fileID;
-	}
-	
-	public void setChunkNo(int c){
-		this.chunkNo = c;
-	}
-	
-	public Integer getChunkNo(){
-		return this.chunkNo;
-	}
-	
-	public Integer getReplicationDeg(){
-		return this.replicationDeg.intValue();
-	}
-	
-	protected void setReplicationDegree(int i){
-		this.replicationDeg = (byte)i;
-	}
-	
-	protected void setBody(byte[] b){
-		this.body = b;
-	}
-	
-	public byte[] getBody(){
-		return this.body;
-	}
-	
 	public byte[] toByteArray(){
 		StringBuilder sb = new StringBuilder();
 		
@@ -247,6 +195,58 @@ public class Message {
 			return msg;
 		}
 		return null;
+	}
+	
+	protected void setFileID(byte[] fileID){
+		this.fileID = new FileID(fileID); 
+	}
+	
+	public void setFileID(FileID fileID){
+		this.fileID = fileID;
+	}
+	
+	public String getHexFileID(){
+		return this.fileID.toString();
+	}
+	
+	public void setVersion(int i, int j){
+		if(version == null){
+			version = new byte[2];
+		}
+		version[0] = (byte)i;
+		version[1] = (byte)j;
+	}
+	
+	public int[] getVersion() {
+		return new int[]{(int) version[0], (int) version[1]};
+	}
+
+	public FileID getFileID(){
+		return this.fileID;
+	}
+	
+	public void setChunkNo(int c){
+		this.chunkNo = c;
+	}
+	
+	public Integer getChunkNo(){
+		return this.chunkNo;
+	}
+	
+	public Integer getReplicationDeg(){
+		return this.replicationDeg.intValue();
+	}
+	
+	protected void setReplicationDegree(int i){
+		this.replicationDeg = (byte)i;
+	}
+	
+	protected void setBody(byte[] b){
+		this.body = b;
+	}
+	
+	public byte[] getBody(){
+		return this.body;
 	}
 
 	public static byte[] hexStringToByteArray(String s) {

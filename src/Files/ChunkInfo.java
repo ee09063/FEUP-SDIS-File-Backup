@@ -15,7 +15,7 @@ public class ChunkInfo{
         this.chunkNo = chunkNo;
     }
 
-    public Integer getExcessDegree() {
+    public Integer getExtraDegree() {
         return actualRD - desiredRD;
     }
 

@@ -43,6 +43,16 @@ public class MyFile {
 		}
 	}
 
+	public byte[] getChunk(int chunkNo) throws IOException{
+		long chunkPos = chunkNo * Chunk.CHUNK_MAX_SIZE;
+		long arraySize = Math.min(Chunk.CHUNK_MAX_SIZE, this.fileSize - chunkPos);
+		
+		byte[] array = new byte[(int) arraySize];
+		System.arraycopy(FileContent, (int)chunkPos, array, 0, array.length);
+		
+		return array == null? new byte[0] : array;
+	}
+	
 	public FileID getFileID() {
 		return fileID;
 	}
@@ -60,40 +70,6 @@ public class MyFile {
 	}
 	
 	public int getNumberofChunks(){
-		return (int)(getFileSize() / Chunk.CHUNK_MAX_SIZE) + 1;
+		return (int)(this.fileSize / Chunk.CHUNK_MAX_SIZE) + 1;
 	}
-	
-	public byte[] getChunk(int chunkNo) throws IOException{
-		long chunkPos = chunkNo * Chunk.CHUNK_MAX_SIZE;
-		long arraySize = Math.min(Chunk.CHUNK_MAX_SIZE, this.fileSize - chunkPos);
-		
-		byte[] array = new byte[(int) arraySize];
-		System.arraycopy(FileContent, (int)chunkPos, array, 0, array.length);
-		
-		return array == null? new byte[0] : array;
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 }

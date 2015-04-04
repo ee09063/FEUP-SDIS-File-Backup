@@ -63,7 +63,6 @@ public class Peer {
 	 */
 	public static long usedSpace;
 	public static long totalSpace;
-	public static boolean reclaimInProgress;
 	/*
 	 * THREADS
 	 */
@@ -96,7 +95,6 @@ public class Peer {
 		
 		System.out.println(InetAddress.getLocalHost());
 		System.out.println("TOTAL SPACE: " + totalSpace + " | " + "AVAILABLE SPACE: " + getAvailableSpace());
-		reclaimInProgress = false;
 		
 		mutex_chunk_messages = new ReentrantLock(true);
 		mutex_space = new ReentrantLock(true);
@@ -281,7 +279,7 @@ public class Peer {
 		for(int i = 0; i < chunks.size(); i++){
 			ChunkInfo chunk = chunks.get(i);
 			
-			if(chunk.getExcessDegree() > 0){/*CANDIDATE FOR REMOVAL*/
+			if(chunk.getExtraDegree() > 0){/*CANDIDATE FOR REMOVAL*/
 				list.add(chunk);
 			}
 		}
