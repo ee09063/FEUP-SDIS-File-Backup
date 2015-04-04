@@ -191,8 +191,9 @@ public class Peer {
 	}
 	
 	public static Message chunkMessageExists(Message msg){
-		for(int i = 0; i < chunk_messages.size(); i++){
-			Message m = chunk_messages.get(i);
+		LinkedList<Message> new_chunk_messages = (LinkedList<Message>) chunk_messages.clone();
+		for(int i = 0; i < new_chunk_messages.size(); i++){
+			Message m = new_chunk_messages.get(i);
 			if(m.getFileID().toString().equals(msg.getFileID().toString()) && m.getChunkNo() == msg.getChunkNo()){
 				chunk_messages.remove(i);
 				return m;
@@ -231,7 +232,8 @@ public class Peer {
 	}
 	
 	public static void removePeer(String peerIP, Message message){
-		for(Pair<String, ChunkInfo> pair : Peer.peers){
+		LinkedList<Pair<String, ChunkInfo>> new_peers = (LinkedList<Pair<String, ChunkInfo>>) peers.clone();
+		for(Pair<String, ChunkInfo> pair : new_peers){
 			if(pair.getfirst().equals(peerIP) && pair.getsecond().getFileId().equals(message.getFileID().toString()) && pair.getsecond().getChunkNo() == message.getChunkNo()){
 				peers.remove(pair);
 			}
@@ -307,10 +309,14 @@ public class Peer {
 	}
 	
 	public static void deleteChunks(String fileID) {
-		for(ChunkInfo ci : chunks){
+		@SuppressWarnings("unchecked")
+		LinkedList<ChunkInfo> new_chunks = (LinkedList<ChunkInfo>) chunks.clone();
+		mutex_chunks.lock();
+		for(ChunkInfo ci : new_chunks){
 			if(ci.getFileId().equals(fileID))
 				chunks.remove(ci);
 		}
+		mutex_chunks.unlock();
 	}
 	
 	private static void quit() throws IOException{
