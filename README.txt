@@ -51,4 +51,7 @@ Utilização:
  RECLAIM SPACE:
 	reclaim
 	
+ QUIT
+	quit -> Ao fazer 'quit' são atualizadas as listas de ficheiros, fileList.txt e chunks, chunkList.txt, bem como o espaço usado.
+	
   
