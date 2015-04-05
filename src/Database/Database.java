@@ -15,8 +15,8 @@ import Utilities.Pair;
 
 
 public class Database {
-	final static String filePath = "fileList.txt";
-	final static String chunkPath = "chunkList.txt";
+	public static String filePath;
+	public static String chunkPath;
 	
 	public static void loadDatabase(){
 		/*

@@ -91,6 +91,8 @@ public class Peer {
 		
 		if(args.length == 6){
 			setUpSockets(args);
+		} else {
+			setUpSockets(lp.prop);
 		}
 		
 		System.out.println(InetAddress.getLocalHost());
@@ -358,10 +360,26 @@ public class Peer {
 			}
 		}
 		
+		Database.filePath = prop.getProperty("file_path");
+		File fileList = new File(Database.filePath);
+		if(!fileList.exists()){
+			boolean sucess = fileList.createNewFile();
+			if(!sucess){
+				System.err.println("FAILED TO CREATE fileList.txt");
+			}
+		}
+		
+		Database.chunkPath = prop.getProperty("chunk_path");
+		File chunkList = new File(Database.chunkPath);
+		if(!chunkList.exists()){
+			boolean sucess = chunkList.createNewFile();
+			if(!sucess){
+				System.err.println("FAILED TO CREATE chunkList.txt");
+			}
+		}
+		
 		totalSpace = Integer.parseInt(prop.getProperty("totalSpace"));
 		usedSpace = Integer.parseInt(prop.getProperty("usedSpace"));
-		
-		setUpSockets(prop);
 	}
 	
 	static void setUpSockets(Properties prop) throws IOException{
