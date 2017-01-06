@@ -2,6 +2,7 @@
 
 Turma 2 Grupo 2
 
+Authors:
 Diogo Miguel Sousa Barroso
 João Pedro Milano Silva Cardoso
 
